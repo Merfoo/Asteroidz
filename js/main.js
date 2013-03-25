@@ -223,10 +223,11 @@ function resetPlayer(centerX, centerY)
         
         velocity:
         {
-            x: 1,
+            x: 0,
             y: 0
         }, 
-                
+        
+        increase: 5,        
         color: "white",
         up: false,
         down: false,
@@ -248,38 +249,36 @@ function setUpShip(ship)
     // Repaint the prevous ship to background color
     paintShip(ship, 3, m_iMap.backgroundColor);
     
+    // Moving the ship up and down
     if(ship.up)
-    {    
-        ship.head.y -= 5;
-        ship.tailLeft.y -= 5;
-        ship.tailRight.y -= 5;
-        ship.butt.y -= 5;
-    }
+        ship.velocity.y = -ship.increase;
     
     if(ship.down)
-    {
-        ship.head.y += 5;
-        ship.tailLeft.y += 5;
-        ship.tailRight.y += 5;
-        ship.butt.y += 5;
-    }
+        ship.velocity.y = ship.increase;
     
     if(ship.left)
-    {
-        ship.head.x -= 5;
-        ship.tailLeft.x -= 5;
-        ship.tailRight.x -= 5;
-        ship.butt.x -= 5;
-    }
+        ship.velocity.x = -ship.increase;
     
     if(ship.right)
-    {
-        ship.head.x += 5;
-        ship.tailLeft.x += 5;
-        ship.tailRight.x += 5;
-        ship.butt.x += 5;
-    }
+        ship.velocity.x = ship.increase;
     
+    if(!ship.up && !ship.down)
+        ship.velocity.y = 0;
+    
+    if(!ship.right && !ship.left)
+        ship.velocity.x = 0;
+    
+    ship.head.x += ship.velocity.x;
+    ship.tailLeft.x += ship.velocity.x;
+    ship.tailRight.x += ship.velocity.x;
+    ship.butt.x += ship.velocity.x;
+    
+    ship.head.y += ship.velocity.y;
+    ship.tailLeft.y += ship.velocity.y;
+    ship.tailRight.y += ship.velocity.y;
+    ship.butt.y += ship.velocity.y;
+        
+    // Putting the ship on the other side if its out of bounds
     if(ship.head.x < 0 && ship.tailLeft.x < 0 && ship.tailRight.x < 0 && ship.butt.x < 0)
     {       
         ship.head.x += m_iMap.width;
