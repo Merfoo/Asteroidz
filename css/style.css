@@ -1,0 +1,34 @@
+canvas 
+{
+    z-index: 1; 
+    border:3px solid gray;
+}
+
+#pause 
+{
+    z-index:-1; 
+    height: 60%; 
+    width: 60%; 
+    position:absolute; 
+    top: 20%; 
+    left:20%;
+}
+
+#startMenu 
+{
+    z-index: -1;
+    height: 100%; 
+    width: 100%;
+    position: absolute; 
+    top: 0%; 
+    left: 0%;
+}
+
+#singlePlayer 
+{
+    height: 60%; 
+    width: 30%;
+    position: absolute; 
+    top: 30%; 
+    left: 30%;
+}
