@@ -4,6 +4,7 @@
 var m_iMap;
 var m_iSpecks;
 var m_Player;
+var m_iAsteroidz;
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
@@ -32,15 +33,6 @@ function startGame(iGameVersion)
         initializeSingle();
 }
 
-// Changes gamespeed
-function changeGameSpeed(intervalID, sFunction,gameSpeed)
-{
-    window.clearInterval(intervalID);
-    intervalID = window.setInterval(sFunction, gameSpeed);
-
-    return intervalID;
-}
-
 // Sets the canvas as big as the broswer size
 function initializeCanvas()
 {
@@ -64,6 +56,15 @@ function initializeCanvas()
     
     m_CanvasContext.canvas.width = m_iMap.width -= floor(m_iMap.width / 75); 
     m_CanvasContext.canvas.height = m_iMap.height -= floor(m_iMap.height / 36);
+}
+
+// Initialize the astroidz array with 10
+function initializeAsteroidz()
+{
+    m_iAsteroidz = new Array();
+    
+    for(var index = 0; index < 100; index++)
+        m_iAsteroidz.push(makeAsteroid(getRandomNumber(0, 4)));
 }
 
 // Shows start menu, based on argument.
@@ -98,6 +99,22 @@ function paintShip(ship, width, color)
     m_CanvasContext.closePath();
 }
 
+// Paint 7 point asteroid
+function paintAsteroid(asteroid, width, color)
+{
+    m_CanvasContext.beginPath();
+    m_CanvasContext.lineWidth = width;
+    m_CanvasContext.moveTo(asteroid[0].x, asteroid[0].y);
+    
+    for(var index = 1; index < asteroid.length; index++)
+        m_CanvasContext.lineTo(asteroid[index].x, asteroid[index].y);
+    
+    m_CanvasContext.lineTo(asteroid[0].x, asteroid[0].y);
+    m_CanvasContext.strokeStyle = color;
+    m_CanvasContext.stroke();
+    m_CanvasContext.closePath();
+}
+
 // Paints a rectangle by pixels
 function paintTile(startX, startY, width, height, color)
 {
@@ -114,7 +131,6 @@ function paintToolbar(color)
 // Paints whole screen
 function paintScreen(color)
 {
-    
     paintTile(0, 0, m_iMap.width, m_iMap.height, color);
     paintSpecks();
 }
@@ -128,6 +144,8 @@ function paintSpecks()
 // Shows pause pause if true, otherwise hides it.
 function showPausePic(bVisible)
 {
+    m_bGameStatus.isPaused = bVisible;
+    
     if (bVisible)
         document.getElementById("pause").style.zIndex = 1;
 
@@ -153,6 +171,7 @@ function resetGame()
     m_iScores.one = 0;
     m_iScores.highest = 0;
     m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
+    initializeAsteroidz();
     m_iSpecks = new Array();
     showPausePic(false);
     
@@ -358,5 +377,82 @@ function findShipSlope(ship)
     var slope = { x: ship.head.x - ship.butt.x, y: ship.head.y - ship.butt.y };
     
     return slope;
+}
+
+function setUpAsteroid(asteroid)
+{
+    paintAsteroid(asteroid.array, 7, m_iMap.backgroundColor);
+    
+    for(var index = 0; index < asteroid.array.length; index++)
+    {
+        asteroid.array[index].x += asteroid.velocity.x;
+        asteroid.array[index].y += asteroid.velocity.y;
+    }
+    
+    paintAsteroid(asteroid.array, 3, asteroid.color);
+}
+
+function makeAsteroid(position)
+{
+    var asteroid = 
+    {
+        array: new Array(),
+        velocity: { x: 0, y: 0},
+        color: "white"
+    };
+    
+    var amountOfPoints = 6;
+    var center;
+    var xVerticalVelocity = getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200));
+    var yVerticalVelocity = getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200));
+    var xHorizontaVelocity = getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200));
+    var yHorizontalVelocity = getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200));
+    
+    if(position == 0)   // Spawn above the map
+    {    
+        center = { x: getRandomNumber(0, m_iMap.width), y: getRandomNumber(0, floor(-m_iMap.height / 3)) };
+        asteroid.velocity.x = xVerticalVelocity;
+        asteroid.velocity.y = yVerticalVelocity;
+    }
+    
+    if(position == 1)   // Spawn below the map
+    {    
+        center = { x: getRandomNumber(0, m_iMap.width), y: getRandomNumber(m_iMap.height, m_iMap.height + floor(m_iMap.height / 3)) };
+        asteroid.velocity.x = xVerticalVelocity;
+        asteroid.velocity.y = -yVerticalVelocity;
+    }
+    
+    if(position == 2)   // Spawn left of the map
+    {    
+        center = { x: getRandomNumber(floor(-m_iMap.width / 3), 0), y: getRandomNumber(0, m_iMap.height) };
+        asteroid.velocity.x = xHorizontaVelocity;
+        asteroid.velocity.y = yHorizontalVelocity;
+    }
+    
+    if(position == 3)   // Spawn right of the map
+    {    
+        center = { x: getRandomNumber(m_iMap.width, m_iMap.width + floor(m_iMap.width / 3)), y: getRandomNumber(0, m_iMap.height) };
+        asteroid.velocity.x = -xHorizontaVelocity;
+        asteroid.velocity.y = yHorizontalVelocity;
+    }
+
+    for(var index = 0; index < amountOfPoints; index++)
+    {
+        var distance = getRandomNumber(50, 100);
+        var point;
+        
+        if(index == 0)
+            point = { x: getRandomNumber(center.x - distance, center.x + distance), y: getRandomNumber(center.y - distance, center.y + distance) };    
+        
+        else if(index < amountOfPoints / 2)
+            point = { x: getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x + distance / index), y: getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y + distance) };    
+            
+        else
+            point = { x: getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x - distance / index * 2), y: getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y - distance / index / 2) };
+        
+        asteroid.array.push(point);
+    }
+    
+    return asteroid;
 }
 

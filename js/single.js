@@ -5,7 +5,6 @@ function initializeSingle()
     showStartMenu(false);
     m_bGameStatus.started = true;
     m_bGameStatus.single = true;
-
     m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
 }
 
@@ -14,6 +13,9 @@ function gameLoopSingle()
 {
     m_Player = setUpShip(m_Player);
     paintSpecks();
+    
+    for(var index = 0; index < m_iAsteroidz.length; index++)
+        setUpAsteroid(m_iAsteroidz[index]);
 }
 
 // Stops loop
@@ -21,7 +23,6 @@ function pauseGameSingle()
 {
     showPausePic(true);
     window.clearInterval(m_IntervalId.game);
-    m_bGameStatus.isPaused = true;
 }
 
 // Starts loop again
@@ -29,7 +30,6 @@ function unPauseGameSingle()
 {
     showPausePic(false);
     m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
-    m_bGameStatus.isPaused = false;
 }
 
 // Handle keyboard events for multiplayer

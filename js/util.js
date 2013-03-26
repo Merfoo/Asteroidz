@@ -28,7 +28,7 @@ function getRandomColor(iMin, iMax)
     return hexColor.toUpperCase();
 }
 
-// Returns random number between iMin and iMax.
+// Returns random number between iMin and iMax. Include iMin, not iMax.
 function getRandomNumber(iMin, iMax)
 {
     return Math.floor((Math.random() * (iMax - iMin)) + iMin);
@@ -66,6 +66,11 @@ function rotatePoint(x, y, ang, cornerX, cornerY)
 function floor(number)
 {
     return Math.floor(number);
+}
+
+function abs(number)
+{
+    return Math.abs(number);
 }
 
 
