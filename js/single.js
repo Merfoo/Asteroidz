@@ -11,8 +11,8 @@ function initializeSingle()
 // Runs all the functions required for the game to work.
 function gameLoopSingle() 
 {
+    clearGameScreen();
     m_Player = setUpShip(m_Player);
-    paintSpecks();
     
     for(var index = 0; index < m_iAsteroidz.length; index++)
         setUpAsteroid(m_iAsteroidz[index]);

@@ -8,7 +8,8 @@ var m_iAsteroidz;
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
-var m_CanvasContext;
+var m_CanvasMain;
+var m_CanvasBackground;
 var m_IntervalId = { game: null};
 var m_bGameStatus = { started: false, paused: false, single: false };
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32 };
@@ -23,6 +24,7 @@ document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar w
 function initializeGame()
 {
     initializeCanvas(); 
+    paintBackground();
     showStartMenu(true);
 }
 
@@ -36,7 +38,8 @@ function startGame(iGameVersion)
 // Sets the canvas as big as the broswer size
 function initializeCanvas()
 {
-    m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
+    m_CanvasMain = document.getElementById("myCanvas").getContext("2d");
+    m_CanvasBackground = document.getElementById("background").getContext("2d");
     
     m_iMap = 
     {
@@ -54,8 +57,13 @@ function initializeCanvas()
         right: floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
     };
     
-    m_CanvasContext.canvas.width = m_iMap.width -= floor(m_iMap.width / 75); 
-    m_CanvasContext.canvas.height = m_iMap.height -= floor(m_iMap.height / 36);
+    m_CanvasBackground.canvas.width = m_CanvasMain.canvas.width = m_iMap.width -= floor(m_iMap.width / 75); 
+    m_CanvasBackground.canvas.height = m_CanvasMain.canvas.height = m_iMap.height -= floor(m_iMap.height / 36);
+}
+
+function clearGameScreen()
+{
+    m_CanvasMain.clearRect(0, 0, m_iMap.width, m_iMap.height);
 }
 
 // Initialize the astroidz array with 10
@@ -73,72 +81,66 @@ function showStartMenu(bVisible)
     if (bVisible)
     {
         resetGame();
-        paintScreen(m_iMap.backgroundColor);
-        document.getElementById("startMenu").style.zIndex = 1;        
+        clearGameScreen();
+        document.getElementById("startMenu").style.zIndex = 2;        
     }
 
     else
     {
-        document.getElementById("startMenu").style.zIndex = -1;
-        paintScreen(m_iMap.backgroundColor);
-        paintToolbar(m_iMap.toolbarColor);
+        document.getElementById("startMenu").style.zIndex = -2;
     }
 }
 
 function paintShip(ship, width, color)
 {    
-    m_CanvasContext.beginPath();
-    m_CanvasContext.lineWidth = width;
-    m_CanvasContext.moveTo(ship.head.x, ship.head.y);
-    m_CanvasContext.lineTo(ship.tailRight.x, ship.tailRight.y);
-    m_CanvasContext.lineTo(ship.butt.x, ship.butt.y);
-    m_CanvasContext.lineTo(ship.tailLeft.x, ship.tailLeft.y);
-    m_CanvasContext.lineTo(ship.head.x, ship.head.y);
-    m_CanvasContext.strokeStyle = color;
-    m_CanvasContext.stroke();
-    m_CanvasContext.closePath();
+    m_CanvasMain.beginPath();
+    m_CanvasMain.lineWidth = width;
+    m_CanvasMain.moveTo(ship.head.x, ship.head.y);
+    m_CanvasMain.lineTo(ship.tailRight.x, ship.tailRight.y);
+    m_CanvasMain.lineTo(ship.butt.x, ship.butt.y);
+    m_CanvasMain.lineTo(ship.tailLeft.x, ship.tailLeft.y);
+    m_CanvasMain.lineTo(ship.head.x, ship.head.y);
+    m_CanvasMain.strokeStyle = color;
+    m_CanvasMain.stroke();
+    m_CanvasMain.closePath();
 }
 
-// Paint 7 point asteroid
+// Paint asteroid
 function paintAsteroid(asteroid, width, color)
 {
-    m_CanvasContext.beginPath();
-    m_CanvasContext.lineWidth = width;
-    m_CanvasContext.moveTo(asteroid[0].x, asteroid[0].y);
+    m_CanvasMain.beginPath();
+    m_CanvasMain.lineWidth = width;
+    m_CanvasMain.moveTo(asteroid[0].x, asteroid[0].y);
     
     for(var index = 1; index < asteroid.length; index++)
-        m_CanvasContext.lineTo(asteroid[index].x, asteroid[index].y);
+        m_CanvasMain.lineTo(asteroid[index].x, asteroid[index].y);
     
-    m_CanvasContext.lineTo(asteroid[0].x, asteroid[0].y);
-    m_CanvasContext.strokeStyle = color;
-    m_CanvasContext.stroke();
-    m_CanvasContext.closePath();
+    m_CanvasMain.lineTo(asteroid[0].x, asteroid[0].y);
+    m_CanvasMain.strokeStyle = color;
+    m_CanvasMain.stroke();
+    m_CanvasMain.closePath();
 }
 
 // Paints a rectangle by pixels
 function paintTile(startX, startY, width, height, color)
 {
-    m_CanvasContext.fillStyle = color;
-    m_CanvasContext.fillRect(startX, startY, width, height);
+    m_CanvasMain.fillStyle = color;
+    m_CanvasMain.fillRect(startX, startY, width, height);
 }
 
-// Paints toolbar back to regular
-function paintToolbar(color)
+function paintBackground()
 {
-    paintTile(0, 0, m_iMap.width, m_iMap.toolbarThickness, color);
-}
+    m_CanvasBackground.fillStyle = m_iMap.backgroundColor;
+    m_CanvasBackground.fillRect(0, 0, m_iMap.width, m_iMap.height);
+    
+    m_CanvasBackground.fillStyle = m_iMap.toolbarColor;
+    m_CanvasBackground.fillRect(0, 0, m_iMap.width, m_iMap.toolbarThickness);
 
-// Paints whole screen
-function paintScreen(color)
-{
-    paintTile(0, 0, m_iMap.width, m_iMap.height, color);
-    paintSpecks();
-}
-
-function paintSpecks()
-{
-    for(var index = 0; index < m_iSpecks.length; index++)
-        paintTile(m_iSpecks[index].x, m_iSpecks[index].y, 1, 1, m_iSpecks[index].color);
+    for(var index = 0; index < floor((m_iMap.width * m_iMap.height) / 500); index++)
+    {
+        m_CanvasBackground.fillStyle = getRandomColor(1, 255);
+        m_CanvasBackground.fillRect(getRandomNumber(0, m_iMap.width), getRandomNumber(0, m_iMap.height), 1, 1);
+    }
 }
 
 // Shows pause pause if true, otherwise hides it.
@@ -147,18 +149,18 @@ function showPausePic(bVisible)
     m_bGameStatus.isPaused = bVisible;
     
     if (bVisible)
-        document.getElementById("pause").style.zIndex = 1;
+        document.getElementById("pause").style.zIndex = 2;
 
     else
-        document.getElementById("pause").style.zIndex = -1;
+        document.getElementById("pause").style.zIndex = -2;
 }
 
 // Writes message to corresponding tile, with specified colour
 function writeMessage(startTile, message, color)
 {
-    m_CanvasContext.font = (m_iMap.toolbarThickness - 10)  + 'pt Calibri';
-    m_CanvasContext.fillStyle = color;
-    m_CanvasContext.fillText(message, startTile, m_iMap.toolbarThickness - 5);
+    m_CanvasMain.font = (m_iMap.toolbarThickness - 10)  + 'pt Calibri';
+    m_CanvasMain.fillStyle = color;
+    m_CanvasMain.fillText(message, startTile, m_iMap.toolbarThickness - 5);
 }
 
 // Resets the status's about the game
@@ -172,11 +174,7 @@ function resetGame()
     m_iScores.highest = 0;
     m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
     initializeAsteroidz();
-    m_iSpecks = new Array();
     showPausePic(false);
-    
-    for(var index = 0; index < floor((m_iMap.width * m_iMap.height) / 500); index++)
-        m_iSpecks.push({x: getRandomNumber(0, m_iMap.width), y: getRandomNumber(0, m_iMap.height), color: getRandomColor(1, 255)});
 }
 
 // Handles the changing direction of the snake.
@@ -279,9 +277,7 @@ function rotateShip(ship, angle)
 }
 
 function setUpShip(ship)
-{
-    // Repaint the prevous ship to background color
-    paintShip(ship, 13, m_iMap.backgroundColor);    
+{  
     rotateShip(ship, ship.degree);
     var shipMoveDivider = 10;
     
@@ -390,7 +386,7 @@ function setUpShip(ship)
     }
     
     // Paint ship
-    paintShip(ship, 1,ship.color);
+    paintShip(ship, 2,ship.color);
     
     return ship;
 }
@@ -404,8 +400,6 @@ function findShipVelocity(ship)
 
 function setUpAsteroid(asteroid)
 {
-    paintAsteroid(asteroid.array, 7, m_iMap.backgroundColor);
-    
     for(var index = 0; index < asteroid.array.length; index++)
     {
         asteroid.array[index].x += asteroid.velocity.x;
@@ -426,10 +420,10 @@ function makeAsteroid(position)
     
     var amountOfPoints = 6;
     var center;
-    var xVerticalVelocity = getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200));
-    var yVerticalVelocity = getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200));
-    var xHorizontaVelocity = getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200));
-    var yHorizontalVelocity = getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200));
+    var xVerticalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
+    var yVerticalVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
+    var xHorizontaVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
+    var yHorizontalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
     
     if(position == 0)   // Spawn above the map
     {    
@@ -465,13 +459,13 @@ function makeAsteroid(position)
         var point;
         
         if(index == 0)
-            point = { x: getRandomNumber(center.x - distance, center.x + distance), y: getRandomNumber(center.y - distance, center.y + distance) };    
+            point = { x: floor(getRandomNumber(center.x - distance, center.x + distance)), y: floor(getRandomNumber(center.y - distance, center.y + distance)) };    
         
         else if(index < amountOfPoints / 2)
-            point = { x: getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x + distance / index), y: getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y + distance) };    
+            point = { x: floor(getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x + floor(distance / index))), y: floor(getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y + distance)) };    
             
         else
-            point = { x: getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x - distance / index * 2), y: getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y - distance / index / 2) };
+            point = { x: floor(getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x - floor(distance / index * 2))), y: floor(getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y - floor(distance / index / 2))) };
         
         asteroid.array.push(point);
     }

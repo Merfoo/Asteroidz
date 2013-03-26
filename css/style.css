@@ -1,6 +1,18 @@
-canvas 
+#myCanvas 
 {
     z-index: 1; 
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    border:3px solid gray;
+}
+
+#background 
+{
+    z-index: 0; 
+    position: absolute;
+    top: 5px;
+    left: 5px;
     border:3px solid gray;
 }
 
