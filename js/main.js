@@ -264,6 +264,11 @@ function setUpShip(ship)
     // Repaint the prevous ship to background color
     paintShip(ship, 3, m_iMap.backgroundColor);
     
+    if((ship.degree += 1) > 360)
+        ship.degree = 0;
+    
+    rotateShip(ship, ship.degree);
+    
     // Moving the ship up and down
     if(ship.up)
         ship.velocity.y = -ship.increase;
@@ -328,5 +333,7 @@ function setUpShip(ship)
     
     // Paint ship
     paintShip(ship, 1,ship.color);
+    
+    return ship;
 }
 

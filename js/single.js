@@ -12,12 +12,7 @@ function initializeSingle()
 // Runs all the functions required for the game to work.
 function gameLoopSingle() 
 {
-    setUpShip(m_Player);
-    
-    if((m_Player.degree += 1) > 360)
-        m_Player.degree = 0;
-    
-    rotateShip(m_Player, m_Player.degree);
+    m_Player = setUpShip(m_Player);
 }
 
 // Stops loop
