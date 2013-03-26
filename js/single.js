@@ -13,6 +13,11 @@ function initializeSingle()
 function gameLoopSingle() 
 {
     setUpShip(m_Player);
+    
+    if((m_Player.degree += 1) > 360)
+        m_Player.degree = 0;
+    
+    rotateShip(m_Player, m_Player.degree);
 }
 
 // Stops loop

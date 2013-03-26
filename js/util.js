@@ -45,5 +45,22 @@ function removeIndex(index, array)
     
     return returnArray;
 }
+function cos(angle)
+{
+    return Math.cos(angle);
+}
+
+function sin(angle)
+{
+    return Math.sin(angle);
+}
+
+function rotatePoint(x, y, ang, cornerX, cornerY)
+{
+    var newX = cos(ang)*(x - cornerX) - sin(ang)*( y - cornerY) + cornerX;
+    var newY = sin(ang)*(x - cornerX) + cos(ang)*( y - cornerY) + cornerY;
+    
+    return { x: newX, y: newY };
+}
 
 

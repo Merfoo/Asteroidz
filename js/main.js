@@ -93,7 +93,8 @@ function showStartMenu(bVisible)
 }
 
 function paintShip(ship, width, color)
-{
+{    
+    
     m_CanvasContext.beginPath();
     m_CanvasContext.lineWidth = width;
     m_CanvasContext.moveTo(ship.head.x, ship.head.y);
@@ -232,7 +233,8 @@ function resetPlayer(centerX, centerY)
         up: false,
         down: false,
         left: false,
-        right: false
+        right: false,
+        degree: 1
     };
     
     console.log("Initialized");
@@ -242,6 +244,19 @@ function resetPlayer(centerX, centerY)
     console.log(player.butt.x + "-" + player.butt.y);
     
     return player;
+}
+
+function rotateShip(ship, angle)
+{
+    var newHead = rotatePoint(ship.head.x, ship.head.y, angle, ship.head.x, ship.head.y);
+    var newTailLeft = rotatePoint(ship.tailLeft.x, ship.tailLeft.y, angle, ship.head.x, ship.head.y);
+    var newTailRight = rotatePoint(ship.tailRight.x, ship.tailRight.y, angle, ship.head.x, ship.head.y);
+    var newButt = rotatePoint(ship.butt.x, ship.butt.y, angle, ship.head.x, ship.head.y);
+    
+    ship.head = newHead;
+    ship.tailLeft = newTailLeft;
+    ship.tailRight = newTailRight;
+    ship.butt = newButt;
 }
 
 function setUpShip(ship)
