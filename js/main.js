@@ -94,7 +94,6 @@ function showStartMenu(bVisible)
 
 function paintShip(ship, width, color)
 {    
-    
     m_CanvasContext.beginPath();
     m_CanvasContext.lineWidth = width;
     m_CanvasContext.moveTo(ship.head.x, ship.head.y);
@@ -215,12 +214,6 @@ function resetPlayer(centerX, centerY)
             x: middleWidth,
             y: middleHeight + buttDistance
         }, 
-                    
-        slope:
-        {
-            x: 0,
-            y: 0
-        },
         
         velocity:
         {
@@ -228,13 +221,15 @@ function resetPlayer(centerX, centerY)
             y: 0
         }, 
         
-        increase: 5,        
         color: "white",
         up: false,
         down: false,
         left: false,
         right: false,
-        degree: .125
+        speedDecrease: .25,
+        degree: 0,
+        degreeDecrease: .01,
+        degreeVelocity: .125
     };
     
     console.log("Initialized");
@@ -281,20 +276,37 @@ function setUpShip(ship)
         }
     }
     
-    if(ship.left)
-        ship.degree = -.125;
-    
-    if(ship.right)
-        ship.degree = .125;
-        
     if(!ship.up && !ship.down)
     {
-        ship.velocity.x = 0;
-        ship.velocity.y = 0;
+        if(ship.velocity.x > 0)
+            if((ship.velocity.x -= ship.speedDecrease) < 0)
+                ship.velocity.x = 0;
+        
+        if(ship.velocity.x < 0)
+            if((ship.velocity.x += ship.speedDecrease) > 0)
+                ship.velocity.x = 0;
+        
+        if(ship.velocity.y > 0)
+            if((ship.velocity.y -= ship.speedDecrease) < 0)
+                ship.velocity.y = 0;
+        
+        if(ship.velocity.y < 0)
+            if((ship.velocity.y += ship.speedDecrease) > 0)
+                ship.velocity.y = 0;
+    }
+    
+    if(ship.left || ship.right)
+    {
+        ship.degree = ship.degreeVelocity;
+        
+        if(ship.left)
+            ship.degree = -ship.degree;
     }
     
     if(!ship.left && !ship.right)
+    {
         ship.degree = 0;
+    }
     
     ship.head.x += ship.velocity.x;
     ship.tailLeft.x += ship.velocity.x;
