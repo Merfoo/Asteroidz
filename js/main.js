@@ -248,10 +248,12 @@ function resetPlayer(centerX, centerY)
 
 function rotateShip(ship, angle)
 {
-    var newHead = rotatePoint(ship.head.x, ship.head.y, angle, ship.head.x, ship.head.y);
-    var newTailLeft = rotatePoint(ship.tailLeft.x, ship.tailLeft.y, angle, ship.head.x, ship.head.y);
-    var newTailRight = rotatePoint(ship.tailRight.x, ship.tailRight.y, angle, ship.head.x, ship.head.y);
-    var newButt = rotatePoint(ship.butt.x, ship.butt.y, angle, ship.head.x, ship.head.y);
+    var centerX = ship.butt.x;
+    var centerY = ship.butt.y;
+    var newHead = rotatePoint(ship.head.x, ship.head.y, angle, centerX, centerY);
+    var newTailLeft = rotatePoint(ship.tailLeft.x, ship.tailLeft.y, angle, centerX, centerY);
+    var newTailRight = rotatePoint(ship.tailRight.x, ship.tailRight.y, angle, centerX, centerY);
+    var newButt = rotatePoint(ship.butt.x, ship.butt.y, angle, centerX, centerY);
     
     ship.head = newHead;
     ship.tailLeft = newTailLeft;
@@ -265,24 +267,34 @@ function setUpShip(ship)
     paintShip(ship, 3, m_iMap.backgroundColor);    
     rotateShip(ship, ship.degree);
     
-    // Moving the ship up and down
-    if(ship.up)
-        ship.velocity.y = -ship.increase;
-    
-    if(ship.down)
-        ship.velocity.y = ship.increase;
+    // Moving ship
+    if(ship.up || ship.down)
+    {
+        ship.velocity = findShipSlope(ship);
+        ship.velocity.x /= 3;
+        ship.velocity.y /= 3;
+        
+        if(ship.down)
+        {
+            ship.velocity.x = -ship.velocity.x;
+            ship.velocity.y = -ship.velocity.y;
+        }
+    }
     
     if(ship.left)
-        ship.velocity.x = -ship.increase;
+        ship.degree = -.125;
     
     if(ship.right)
-        ship.velocity.x = ship.increase;
-    
+        ship.degree = .125;
+        
     if(!ship.up && !ship.down)
-        ship.velocity.y = 0;
-    
-    if(!ship.right && !ship.left)
+    {
         ship.velocity.x = 0;
+        ship.velocity.y = 0;
+    }
+    
+    if(!ship.left && !ship.right)
+        ship.degree = 0;
     
     ship.head.x += ship.velocity.x;
     ship.tailLeft.x += ship.velocity.x;
@@ -331,5 +343,12 @@ function setUpShip(ship)
     paintShip(ship, 1,ship.color);
     
     return ship;
+}
+
+function findShipSlope(ship)
+{
+    var slope = { x: ship.head.x - ship.butt.x, y: ship.head.y - ship.butt.y };
+    
+    return slope;
 }
 
