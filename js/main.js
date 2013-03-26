@@ -244,6 +244,12 @@ function resetPlayer(centerX, centerY)
             y: 0
         }, 
         
+        oldVelocity:
+        {
+            x: 0,
+            y: 0
+        },
+        
         color: "white",
         up: false,
         down: false,
@@ -277,19 +283,36 @@ function setUpShip(ship)
     // Repaint the prevous ship to background color
     paintShip(ship, 13, m_iMap.backgroundColor);    
     rotateShip(ship, ship.degree);
+    var shipMoveDivider = 10;
     
     // Moving ship
     if(ship.up || ship.down)
     {
-        ship.velocity = findShipSlope(ship);
-        ship.velocity.x /= 3;
-        ship.velocity.y /= 3;
+        ship.oldVelocity = findShipVelocity(ship);
+        ship.oldVelocity.x /= 3;
+        ship.oldVelocity.y /= 3;
         
         if(ship.down)
         {
-            ship.velocity.x = -ship.velocity.x;
-            ship.velocity.y = -ship.velocity.y;
+            ship.oldVelocity.x = -ship.oldVelocity.x;
+            ship.oldVelocity.y = -ship.oldVelocity.y;
         }
+        
+        if(ship.oldVelocity.x > 0)
+            if((ship.velocity.x += ship.oldVelocity.x / shipMoveDivider) > ship.oldVelocity.x)
+                ship.velocity.x = ship.oldVelocity.x;
+
+        if(ship.oldVelocity.x < 0)
+            if((ship.velocity.x += ship.oldVelocity.x / shipMoveDivider) < ship.oldVelocity.x)
+                ship.velocity.x = ship.oldVelocity.x;
+
+        if(ship.oldVelocity.y > 0)
+            if((ship.velocity.y += ship.oldVelocity.y / shipMoveDivider) > ship.oldVelocity.y)
+                ship.velocity.y = ship.oldVelocity.y
+
+        if(ship.oldVelocity.y < 0)
+            if((ship.velocity.y += ship.oldVelocity.y / shipMoveDivider) < ship.oldVelocity.y)
+                ship.velocity.y = ship.oldVelocity.y
     }
     
     if(!ship.up && !ship.down)
@@ -372,7 +395,7 @@ function setUpShip(ship)
     return ship;
 }
 
-function findShipSlope(ship)
+function findShipVelocity(ship)
 {
     var slope = { x: ship.head.x - ship.butt.x, y: ship.head.y - ship.butt.y };
     
