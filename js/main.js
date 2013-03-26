@@ -228,15 +228,8 @@ function resetPlayer(centerX, centerY)
         right: false,
         speedDecrease: .25,
         degree: 0,
-        degreeDecrease: .0025,
         degreeVelocity: .125
     };
-    
-    console.log("Initialized");
-    console.log(player.head.x + "-" + player.head.y);
-    console.log(player.tailLeft.x + "-" + player.tailLeft.y);
-    console.log(player.tailRight.x + "-" + player.tailRight.y);
-    console.log(player.butt.x + "-" + player.butt.y);
     
     return player;
 }
@@ -304,15 +297,8 @@ function setUpShip(ship)
     }
     
     if(!ship.left && !ship.right)
-    {
-        if(ship.degree > 0)
-            if((ship.degree -= ship.degreeDecrease) < 0)
-                ship.degree = 0;
-        
-        if(ship.degree < 0)
-            if((ship.degree += ship.degreeDecrease) > 0)
-                ship.degree = 0;
-    }
+        ship.degree = 0;
+    
     
     ship.head.x += ship.velocity.x;
     ship.tailLeft.x += ship.velocity.x;
@@ -323,7 +309,7 @@ function setUpShip(ship)
     ship.tailLeft.y += ship.velocity.y;
     ship.tailRight.y += ship.velocity.y;
     ship.butt.y += ship.velocity.y;
-        
+    
     // Putting the ship on the other side if its out of bounds
     if(ship.head.x < 0 && ship.tailLeft.x < 0 && ship.tailRight.x < 0 && ship.butt.x < 0)
     {       
