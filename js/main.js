@@ -228,7 +228,7 @@ function resetPlayer(centerX, centerY)
         right: false,
         speedDecrease: .25,
         degree: 0,
-        degreeDecrease: .01,
+        degreeDecrease: .0025,
         degreeVelocity: .125
     };
     
@@ -305,7 +305,13 @@ function setUpShip(ship)
     
     if(!ship.left && !ship.right)
     {
-        ship.degree = 0;
+        if(ship.degree > 0)
+            if((ship.degree -= ship.degreeDecrease) < 0)
+                ship.degree = 0;
+        
+        if(ship.degree < 0)
+            if((ship.degree += ship.degreeDecrease) > 0)
+                ship.degree = 0;
     }
     
     ship.head.x += ship.velocity.x;
