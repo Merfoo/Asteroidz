@@ -13,6 +13,7 @@ function initializeSingle()
 function gameLoopSingle() 
 {
     m_Player = setUpShip(m_Player);
+    paintSpecks();
 }
 
 // Stops loop

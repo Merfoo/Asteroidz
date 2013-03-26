@@ -2,6 +2,7 @@
 
 // Contains map width, map height, color and toolbar thickness
 var m_iMap;
+var m_iSpecks;
 var m_Player;
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
@@ -58,7 +59,7 @@ function initializeCanvas()
     {
         height: window.innerHeight, 
         width: window.innerWidth,
-        toolbarThickness: Math.floor(this.height / 25),
+        toolbarThickness: floor(this.height / 25),
         toolbarColor: "black",
         backgroundColor: "black"
     };
@@ -66,12 +67,12 @@ function initializeCanvas()
     m_iMessageAlignment = 
     {
         left: 5,
-        middle: Math.floor(m_iMap.width / 2),
-        right: Math.floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
+        middle: floor(m_iMap.width / 2),
+        right: floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
     };
     
-    m_CanvasContext.canvas.width = m_iMap.width -= Math.floor(m_iMap.width / 75); 
-    m_CanvasContext.canvas.height = m_iMap.height -= Math.floor(m_iMap.height / 36);
+    m_CanvasContext.canvas.width = m_iMap.width -= floor(m_iMap.width / 75); 
+    m_CanvasContext.canvas.height = m_iMap.height -= floor(m_iMap.height / 36);
 }
 
 // Shows start menu, based on argument.
@@ -79,8 +80,8 @@ function showStartMenu(bVisible)
 {
     if (bVisible)
     {
-        paintScreen(m_iMap.backgroundColor);
         resetGame();
+        paintScreen(m_iMap.backgroundColor);
         document.getElementById("startMenu").style.zIndex = 1;        
     }
 
@@ -122,7 +123,15 @@ function paintToolbar(color)
 // Paints whole screen
 function paintScreen(color)
 {
+    
     paintTile(0, 0, m_iMap.width, m_iMap.height, color);
+    paintSpecks();
+}
+
+function paintSpecks()
+{
+    for(var index = 0; index < m_iSpecks.length; index++)
+        paintTile(m_iSpecks[index].x, m_iSpecks[index].y, 1, 1, m_iSpecks[index].color);
 }
 
 // Shows pause pause if true, otherwise hides it.
@@ -152,8 +161,12 @@ function resetGame()
     m_bGameStatus.single = false;
     m_iScores.one = 0;
     m_iScores.highest = 0;
-    m_Player = resetPlayer(Math.floor(m_iMap.width / 2), Math.floor(m_iMap.height / 2));
+    m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
+    m_iSpecks = new Array();
     showPausePic(false);
+    
+    for(var index = 0; index < floor((m_iMap.width * m_iMap.height) / 500); index++)
+        m_iSpecks.push({x: getRandomNumber(0, m_iMap.width), y: getRandomNumber(0, m_iMap.height), color: getRandomColor(1, 255)});
 }
 
 // Handles the changing direction of the snake.
@@ -183,11 +196,11 @@ function doKeyUp(event)
 
 function resetPlayer(centerX, centerY)
 {
-    var middleWidth = centerX;//Math.floor(m_iMap.width / 2);
-    var middleHeight = centerY;//Math.floor(m_iMap.height / 2);
-    var shipWidth = Math.floor(m_iMap.width / 100);
-    var shipHeight = Math.floor(middleHeight / 5);
-    var buttDistance = Math.floor(shipHeight - Math.floor(shipHeight / 3));
+    var middleWidth = centerX;
+    var middleHeight = centerY;
+    var shipWidth = floor(m_iMap.width / 100);
+    var shipHeight = floor(middleHeight / 5);
+    var buttDistance = floor(shipHeight - floor(shipHeight / 3));
     
     var player =
     {
@@ -228,7 +241,7 @@ function resetPlayer(centerX, centerY)
         right: false,
         speedDecrease: .25,
         degree: 0,
-        degreeVelocity: .125
+        degreeVelocity: .222
     };
     
     return player;
@@ -252,7 +265,7 @@ function rotateShip(ship, angle)
 function setUpShip(ship)
 {
     // Repaint the prevous ship to background color
-    paintShip(ship, 3, m_iMap.backgroundColor);    
+    paintShip(ship, 13, m_iMap.backgroundColor);    
     rotateShip(ship, ship.degree);
     
     // Moving ship

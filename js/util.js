@@ -63,4 +63,9 @@ function rotatePoint(x, y, ang, cornerX, cornerY)
     return { x: newX, y: newY };
 }
 
+function floor(number)
+{
+    return Math.floor(number);
+}
+
 
