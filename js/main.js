@@ -234,7 +234,7 @@ function resetPlayer(centerX, centerY)
         down: false,
         left: false,
         right: false,
-        degree: 1
+        degree: .125
     };
     
     console.log("Initialized");
@@ -262,11 +262,7 @@ function rotateShip(ship, angle)
 function setUpShip(ship)
 {
     // Repaint the prevous ship to background color
-    paintShip(ship, 3, m_iMap.backgroundColor);
-    
-    if((ship.degree += 1) > 360)
-        ship.degree = 0;
-    
+    paintShip(ship, 3, m_iMap.backgroundColor);    
     rotateShip(ship, ship.degree);
     
     // Moving the ship up and down
