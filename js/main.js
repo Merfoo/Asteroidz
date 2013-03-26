@@ -22,15 +22,6 @@ document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar w
 function initializeGame()
 {
     initializeCanvas(); 
-    
-    alert("WARNING: If you have had epileptic seizures in the past, this game may cause one to occur again.\n\
-            Play with Caution!");
-    
-    var isChrome = /chrome/.test(navigator.userAgent.toLowerCase());
-    
-    if(!isChrome)
-        alert("This game currently does not fully function in IE or Firefox, for best results try Google Chrome :D");
-
     showStartMenu(true);
 }
 

@@ -24,11 +24,20 @@ canvas
     left: 0%;
 }
 
+#title 
+{
+    height: 50%; 
+    width: 50%;
+    position: absolute; 
+    top: 7%; 
+    left: 26%;
+}
+
 #singlePlayer 
 {
     height: 60%; 
     width: 30%;
     position: absolute; 
-    top: 30%; 
-    left: 30%;
+    top: 50%; 
+    left: 33%;
 }
