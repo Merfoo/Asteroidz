@@ -15,7 +15,7 @@ function gameLoopSingle()
     m_Player = setUpShip(m_Player);
     
     for(var index = 0; index < m_iAsteroidz.length; index++)
-        setUpAsteroid(m_iAsteroidz[index]);
+        m_iAsteroidz[index] = setUpAsteroid(m_iAsteroidz[index]);
 }
 
 // Stops loop

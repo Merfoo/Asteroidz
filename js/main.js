@@ -2,7 +2,6 @@
 
 // Contains map width, map height, color and toolbar thickness
 var m_iMap;
-var m_iSpecks;
 var m_Player;
 var m_iAsteroidz;
 var m_iSpeed = { gameOriginal: 33, game: 33 };
@@ -91,10 +90,10 @@ function showStartMenu(bVisible)
     }
 }
 
-function paintShip(ship, width, color)
+function paintShip(ship, color)
 {    
     m_CanvasMain.beginPath();
-    m_CanvasMain.lineWidth = width;
+    m_CanvasMain.lineWidth = ship.width;
     m_CanvasMain.moveTo(ship.head.x, ship.head.y);
     m_CanvasMain.lineTo(ship.tailRight.x, ship.tailRight.y);
     m_CanvasMain.lineTo(ship.butt.x, ship.butt.y);
@@ -106,17 +105,17 @@ function paintShip(ship, width, color)
 }
 
 // Paint asteroid
-function paintAsteroid(asteroid, width, color)
+function paintAsteroid(asteroid)
 {
     m_CanvasMain.beginPath();
-    m_CanvasMain.lineWidth = width;
-    m_CanvasMain.moveTo(asteroid[0].x, asteroid[0].y);
+    m_CanvasMain.lineWidth = asteroid.width;
+    m_CanvasMain.moveTo(asteroid.array[0].x, asteroid.array[0].y);
     
-    for(var index = 1; index < asteroid.length; index++)
-        m_CanvasMain.lineTo(asteroid[index].x, asteroid[index].y);
+    for(var index = 1; index < asteroid.array.length; index++)
+        m_CanvasMain.lineTo(asteroid.array[index].x, asteroid.array[index].y);
     
-    m_CanvasMain.lineTo(asteroid[0].x, asteroid[0].y);
-    m_CanvasMain.strokeStyle = color;
+    m_CanvasMain.lineTo(asteroid.array[0].x, asteroid.array[0].y);
+    m_CanvasMain.strokeStyle = asteroid.color;
     m_CanvasMain.stroke();
     m_CanvasMain.closePath();
 }
@@ -253,6 +252,7 @@ function resetPlayer(centerX, centerY)
         down: false,
         left: false,
         right: false,
+        width: 3,
         speedDecrease: .25,
         degree: 0,
         degreeVelocity: .222
@@ -274,6 +274,14 @@ function rotateShip(ship, angle)
     ship.tailLeft = newTailLeft;
     ship.tailRight = newTailRight;
     ship.butt = newButt;
+}
+
+function rotateAsteroid(asteroid)
+{
+    for(var index = 0; index < asteroid.array.length; index++)
+        asteroid.array[index] = rotatePoint(asteroid.array[index].x, asteroid.array[index].y, asteroid.degree, asteroid.center.x, asteroid.center.y);
+    
+    return asteroid;
 }
 
 function setUpShip(ship)
@@ -400,21 +408,34 @@ function findShipVelocity(ship)
 
 function setUpAsteroid(asteroid)
 {
-    for(var index = 0; index < asteroid.array.length; index++)
+    asteroid = rotateAsteroid(asteroid);
+    
+    for(var index = 0;index < asteroid.array.length; index++)
     {
         asteroid.array[index].x += asteroid.velocity.x;
         asteroid.array[index].y += asteroid.velocity.y;
     }
     
-    paintAsteroid(asteroid.array, 3, asteroid.color);
+    asteroid.center.x += asteroid.velocity.x;
+    asteroid.center.y += asteroid.velocity.y;
+    paintAsteroid(asteroid);
+  
+    return asteroid;
 }
 
 function makeAsteroid(position)
 {
+    var degreeDivider = 100;
+    var minDegree = 1;
+    var maxDegree = 10;
+    
     var asteroid = 
     {
         array: new Array(),
         velocity: { x: 0, y: 0},
+        center: { x: 0, y: 0},
+        degree: getRandomNumber(0, 10) > 4 ? -getRandomNumber(minDegree, maxDegree) / degreeDivider : getRandomNumber(minDegree, maxDegree) / degreeDivider, 
+        width: 3,
         color: "white"
     };
     
@@ -470,6 +491,23 @@ function makeAsteroid(position)
         asteroid.array.push(point);
     }
     
+    asteroid.center = findCenter(asteroid);
     return asteroid;
 }
 
+function findCenter(asteroid)
+{
+    var centerX = 0;
+    var centerY = 0;
+    
+    for(var index = 0; index < asteroid.array.length; index++)
+    {
+        centerX += asteroid.array[index].x;
+        centerY += asteroid.array[index].y;
+    }
+    
+    centerX = centerX / asteroid.array.length;
+    centerY = centerY / asteroid.array.length;
+    
+    return { x: centerX, y: centerY };
+}
