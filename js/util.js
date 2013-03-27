@@ -31,6 +31,13 @@ function getRandomColor(iMin, iMax)
 // Returns random number between iMin and iMax. Include iMin, not iMax.
 function getRandomNumber(iMin, iMax)
 {
+    if(iMax < iMin)
+    {
+        var temp = iMax;
+        iMax = iMin;
+        iMin = temp;
+    }
+    
     return Math.floor((Math.random() * (iMax - iMin)) + iMin);
 }
 

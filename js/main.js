@@ -453,9 +453,9 @@ function setUpAsteroid(asteroid)
 function makeAsteroid()
 {
     var position = getRandomNumber(0, 4);
-    var degreeDivider = 100;
+    var degreeDivider = 1000;
     var minDegree = 1;
-    var maxDegree = 10;
+    var maxDegree = 100;
     var m_distanceFromMap = (m_iMap.width * m_iMap.height) / 5000;
     
     var asteroid = 
@@ -505,17 +505,20 @@ function makeAsteroid()
 
     for(var index = 0; index < amountOfPoints; index++)
     {
-        var distance = getRandomNumber(50, 100);
+        var distance = getRandomNumber(25, 100);
         var point;
         
         if(index == 0)
-            point = { x: floor(getRandomNumber(center.x - distance, center.x + distance)), y: floor(getRandomNumber(center.y - distance, center.y + distance)) };    
+            point = { x: floor(getRandomNumber(center.x, center.x + distance)), y: floor(getRandomNumber(center.y, center.y + distance)) };    
         
-        else if(index < amountOfPoints / 2)
-            point = { x: floor(getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x + floor(distance / index))), y: floor(getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y + distance)) };    
+        else if(index <= amountOfPoints / 3)
+            point = { x: asteroid.array[index - 1].x + distance, y: getRandomNumber(asteroid.array[index - 1].y - floor(distance / 2), asteroid.array[index - 1].y + floor(distance / 2)) };    
             
+        else if(index > amountOfPoints / 3 && index <= (amountOfPoints / 3) + (amountOfPoints / 3))
+            point = { x: getRandomNumber(asteroid.array[index - 1].x - floor(distance / 2), asteroid.array[index - 1].x + floor(distance / 2)), y: asteroid.array[index - 1].y + distance };
+        
         else
-            point = { x: floor(getRandomNumber(asteroid.array[index - 1].x, asteroid.array[index - 1].x - floor(distance / index * 2))), y: floor(getRandomNumber(asteroid.array[index - 1].y, asteroid.array[index - 1].y - floor(distance / index / 2))) };
+            point = { x: asteroid.array[index - 1].x - distance, y: getRandomNumber(asteroid.array[index - 1].y - floor(distance / 2), asteroid.array[index - 1].y + floor(distance / 2)) };
         
         asteroid.array.push(point);
     }
