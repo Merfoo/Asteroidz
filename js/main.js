@@ -14,7 +14,7 @@ var m_CanvasMain;
 var m_CanvasBackground;
 var m_IntervalId = { game: null};
 var m_bGameStatus = { started: false, paused: false, single: false };
-var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, enter: 13 };
+var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65 };
 
 window.addEventListener('keydown', doKeyDown, true);
 window.addEventListener('keyup', doKeyUp, true);
@@ -146,7 +146,6 @@ function paintBackground()
 {
     m_CanvasBackground.fillStyle = m_iMap.backgroundColor;
     m_CanvasBackground.fillRect(0, 0, m_iMap.width, m_iMap.height);
-    
     m_CanvasBackground.fillStyle = m_iMap.toolbarColor;
     m_CanvasBackground.fillRect(0, 0, m_iMap.width, m_iMap.toolbarThickness);
 
@@ -274,8 +273,7 @@ function resetPlayer(centerX, centerY)
         down: false,
         left: false,
         right: false,
-        width: 3,
-        speedDecrease: .25,
+        width: 2,
         degree: 0,
         wantedDegree: .125
     };
@@ -388,7 +386,6 @@ function setUpShip(ship)
     
     if(!ship.left && !ship.right)
         ship.degree = 0;
-    
     
     ship.head.x += ship.velocity.x;
     ship.tailLeft.x += ship.velocity.x;

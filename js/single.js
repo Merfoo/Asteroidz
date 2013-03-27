@@ -81,7 +81,7 @@ function keyBoardUpSingle(event)
     else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
         m_Player.left = false;
 
-    if (event.keyCode == m_iKeyId.enter)
+    if (event.keyCode == m_iKeyId.a)    // A was pressed
         m_iLazers.push(makeNewLazer(m_Player));
         
     if (event.keyCode == m_iKeyId.space)    // Space bar was pressed
