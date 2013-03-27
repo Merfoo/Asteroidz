@@ -324,20 +324,23 @@ function setUpShip(ship)
     
     if(!ship.up && !ship.down)
     {
+        ship.oldVelocity.x = abs(ship.oldVelocity.x);
+        ship.oldVelocity.y = abs(ship.oldVelocity.y);
+        
         if(ship.velocity.x > 0)
-            if((ship.velocity.x -= ship.speedDecrease) < 0)
+            if((ship.velocity.x -= (ship.oldVelocity.x / (shipMoveDivider + 50))) < 0)
                 ship.velocity.x = 0;
         
         if(ship.velocity.x < 0)
-            if((ship.velocity.x += ship.speedDecrease) > 0)
+            if((ship.velocity.x += (ship.oldVelocity.x / (shipMoveDivider + 50))) > 0)
                 ship.velocity.x = 0;
         
         if(ship.velocity.y > 0)
-            if((ship.velocity.y -= ship.speedDecrease) < 0)
+            if((ship.velocity.y -= (ship.oldVelocity.y / (shipMoveDivider + 50))) < 0)
                 ship.velocity.y = 0;
         
         if(ship.velocity.y < 0)
-            if((ship.velocity.y += ship.speedDecrease) > 0)
+            if((ship.velocity.y += (ship.oldVelocity.y / (shipMoveDivider + 50))) > 0)
                 ship.velocity.y = 0;
     }
     
