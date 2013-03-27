@@ -22,6 +22,14 @@ function gameLoopSingle()
         m_iAsteroidz[index] = setUpAsteroid(m_iAsteroidz[index]);
     }
     
+    for(var index = 0; index < m_iLazers.length; index++)
+    {
+        setUpLazer(m_iLazers[index]);
+        
+        if(lazerOutOfBounds(m_iLazers[index]))
+            m_iLazers = removeIndex(index, m_iLazers);
+    }
+    
     if((m_iAsterData.time += m_iSpeed.game) > m_iAsterData.maxTime)
     {
         m_iAsterData.time = 0;
@@ -73,6 +81,9 @@ function keyBoardUpSingle(event)
     else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
         m_Player.left = false;
 
-    if (event.keyCode == m_iKeyId.space)
+    if (event.keyCode == m_iKeyId.enter)
+        m_iLazers.push(makeNewLazer(m_Player));
+        
+    if (event.keyCode == m_iKeyId.space)    // Space bar was pressed
         m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle();
 }
