@@ -4,7 +4,8 @@
 var m_iMap;
 var m_Player;
 var m_iAsteroidz;
-var m_iStartingAsteroids = 50;
+var m_iDistanceFromMap;
+var m_iAsterData = { starting: 10, time: 0, maxTime: 10000 };
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
@@ -69,9 +70,10 @@ function clearGameScreen()
 // Initialize the astroidz array with 10
 function initializeAsteroidz()
 {
+    m_iDistanceFromMap = (m_iMap.width * m_iMap.height) / 5000;
     m_iAsteroidz = new Array();
     
-    for(var index = 0; index < m_iStartingAsteroids; index++)
+    for(var index = 0; index < m_iAsterData.starting; index++)
         m_iAsteroidz.push(makeAsteroid());
 }
 
@@ -430,6 +432,7 @@ function makeAsteroid()
     var degreeDivider = 100;
     var minDegree = 1;
     var maxDegree = 10;
+    var m_distanceFromMap = (m_iMap.width * m_iMap.height) / 5000;
     
     var asteroid = 
     {
@@ -450,28 +453,28 @@ function makeAsteroid()
     
     if(position == 0)   // Spawn above the map
     {    
-        center = { x: getRandomNumber(0, m_iMap.width), y: -getRandomNumber(0, floor(m_iMap.height)) };
+        center = { x: getRandomNumber(0, m_iMap.width), y: -getRandomNumber(0, m_distanceFromMap) };
         asteroid.velocity.x = xVerticalVelocity;
         asteroid.velocity.y = yVerticalVelocity;
     }
     
     if(position == 1)   // Spawn below the map
     {    
-        center = { x: getRandomNumber(0, m_iMap.width), y: getRandomNumber(m_iMap.height, m_iMap.height + floor(m_iMap.height)) };
+        center = { x: getRandomNumber(0, m_iMap.width), y: getRandomNumber(m_iMap.height, m_iMap.height + m_distanceFromMap) };
         asteroid.velocity.x = xVerticalVelocity;
         asteroid.velocity.y = -yVerticalVelocity;
     }
     
     if(position == 2)   // Spawn left of the map
     {    
-        center = { x: -getRandomNumber(0, floor(m_iMap.width)), y: getRandomNumber(0, m_iMap.height) };
+        center = { x: -getRandomNumber(0, m_iMap.width + m_distanceFromMap), y: getRandomNumber(0, m_iMap.height) };
         asteroid.velocity.x = xHorizontaVelocity;
         asteroid.velocity.y = yHorizontalVelocity;
     }
     
     if(position == 3)   // Spawn right of the map
     {    
-        center = { x: getRandomNumber(m_iMap.width, m_iMap.width + floor(m_iMap.width)), y: getRandomNumber(0, m_iMap.height) };
+        center = { x: getRandomNumber(m_iMap.width, m_iMap.width + m_distanceFromMap), y: getRandomNumber(0, m_iMap.height) };
         asteroid.velocity.x = -xHorizontaVelocity;
         asteroid.velocity.y = yHorizontalVelocity;
     }
@@ -516,8 +519,14 @@ function findCenter(asteroid)
 
 function asteroidOutOfBounds(asteroid)
 {
+    var compensator = 10;
+    var maxWidth = m_iMap.width + m_iDistanceFromMap + compensator;
+    var minWidth = -(m_iMap.width + m_iDistanceFromMap + compensator);
+    var maxHeight = m_iMap.height + m_iDistanceFromMap + compensator;
+    var minHeight = -(m_iMap.height + m_iDistanceFromMap + compensator);
+    
     for(var index = 0; index < asteroid.array.length; index++)
-        if(asteroid.array[index].x > 0 && asteroid.array[index].x < m_iMap.width && asteroid.array[index].y > 0 && asteroid.array[index].y < m_iMap.height)
+        if(asteroid.array[index].x >= minWidth && asteroid.array[index].x <= maxWidth  && asteroid.array[index].y >= minHeight && asteroid.array[index].y <= maxHeight)
             return false;
     
     return true;

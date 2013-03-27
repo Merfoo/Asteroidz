@@ -17,9 +17,15 @@ function gameLoopSingle()
     for(var index = 0; index < m_iAsteroidz.length; index++)
     {
         if(asteroidOutOfBounds(m_iAsteroidz[index]))
-            m_iAsteroidz[index] = makeAsteroid();    
+            m_iAsteroidz[index] = makeAsteroid();
             
         m_iAsteroidz[index] = setUpAsteroid(m_iAsteroidz[index]);
+    }
+    
+    if((m_iAsterData.time += m_iSpeed.game) > m_iAsterData.maxTime)
+    {
+        m_iAsterData.time = 0;
+        m_iAsteroidz.push(makeAsteroid());
     }
 }
 
