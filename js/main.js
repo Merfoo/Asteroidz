@@ -244,12 +244,18 @@ function resetPlayer(centerX, centerY)
             y: 0
         }, 
         
-        oldVelocity:
+        wantedVelocity:
         {
             x: 0,
             y: 0
         },
         
+        spedUpYet: 
+        {
+            x: false,
+            y: false
+        },
+                
         color: "white",
         up: false,
         down: false,
@@ -258,7 +264,7 @@ function resetPlayer(centerX, centerY)
         width: 3,
         speedDecrease: .25,
         degree: 0,
-        degreeVelocity: .222
+        wantedDegree: .125
     };
     
     return player;
@@ -290,60 +296,78 @@ function rotateAsteroid(asteroid)
 function setUpShip(ship)
 {  
     rotateShip(ship, ship.degree);
-    var shipMoveDivider = 10;
+    var shipMoveDividerAccel = 10;
+    var shipMoveDividerDeccel = 50;
     
     // Moving ship
     if(ship.up || ship.down)
     {
-        ship.oldVelocity = findShipVelocity(ship);
-        ship.oldVelocity.x /= 3;
-        ship.oldVelocity.y /= 3;
+        ship.wantedVelocity = findShipVelocity(ship);
+        ship.wantedVelocity.x /= 3;
+        ship.wantedVelocity.y /= 3;
         
         if(ship.down)
         {
-            ship.oldVelocity.x = -ship.oldVelocity.x;
-            ship.oldVelocity.y = -ship.oldVelocity.y;
+            ship.wantedVelocity.x = -ship.wantedVelocity.x;
+            ship.wantedVelocity.y = -ship.wantedVelocity.y;
         }
         
-        if(ship.oldVelocity.x > 0)
-            if((ship.velocity.x += ship.oldVelocity.x / shipMoveDivider) > ship.oldVelocity.x)
-                ship.velocity.x = ship.oldVelocity.x;
+        if(!ship.spedUpYet.x)
+        {
+            if(ship.wantedVelocity.x > 0)
+                if((ship.velocity.x += ship.wantedVelocity.x / shipMoveDividerAccel) > ship.wantedVelocity.x)
+                    ship.spedUpYet.x = true;
 
-        if(ship.oldVelocity.x < 0)
-            if((ship.velocity.x += ship.oldVelocity.x / shipMoveDivider) < ship.oldVelocity.x)
-                ship.velocity.x = ship.oldVelocity.x;
+            if(ship.wantedVelocity.x < 0)
+                if((ship.velocity.x += ship.wantedVelocity.x / shipMoveDividerAccel) < ship.wantedVelocity.x)
+                    ship.spedUpYet.x = true;
+        } 
 
-        if(ship.oldVelocity.y > 0)
-            if((ship.velocity.y += ship.oldVelocity.y / shipMoveDivider) > ship.oldVelocity.y)
-                ship.velocity.y = ship.oldVelocity.y
+        if(!ship.spedUpYet.y)
+        {   
+            if(ship.wantedVelocity.y > 0)
+                if((ship.velocity.y += ship.wantedVelocity.y / shipMoveDividerAccel) > ship.wantedVelocity.y)
+                    ship.spedUpYet.y = true;
 
-        if(ship.oldVelocity.y < 0)
-            if((ship.velocity.y += ship.oldVelocity.y / shipMoveDivider) < ship.oldVelocity.y)
-                ship.velocity.y = ship.oldVelocity.y
+            if(ship.wantedVelocity.y < 0)
+                if((ship.velocity.y += ship.wantedVelocity.y / shipMoveDividerAccel) < ship.wantedVelocity.y)
+                    ship.spedUpYet.y = true;
+        }
+        
+        if(ship.spedUpYet.x)
+            ship.velocity.x = ship.wantedVelocity.x;
+        
+        if(ship.spedUpYet.y)
+            ship.velocity.y = ship.wantedVelocity.y;
     }
     
     if(!ship.up && !ship.down)
     {
+        ship.spedUpYet.x = false;
+        ship.spedUpYet.y = false;
+        ship.wantedVelocity.x = abs(ship.wantedVelocity.x);
+        ship.wantedVelocity.y = abs(ship.wantedVelocity.y);
+        
         if(ship.velocity.x > 0)
-            if((ship.velocity.x -= ship.speedDecrease) < 0)
+            if((ship.velocity.x -= (ship.wantedVelocity.x / (shipMoveDividerDeccel))) < 0)
                 ship.velocity.x = 0;
         
         if(ship.velocity.x < 0)
-            if((ship.velocity.x += ship.speedDecrease) > 0)
+            if((ship.velocity.x += (ship.wantedVelocity.x / (shipMoveDividerDeccel))) > 0)
                 ship.velocity.x = 0;
         
         if(ship.velocity.y > 0)
-            if((ship.velocity.y -= ship.speedDecrease) < 0)
+            if((ship.velocity.y -= (ship.wantedVelocity.y / (shipMoveDividerDeccel))) < 0)
                 ship.velocity.y = 0;
         
         if(ship.velocity.y < 0)
-            if((ship.velocity.y += ship.speedDecrease) > 0)
+            if((ship.velocity.y += (ship.wantedVelocity.y / (shipMoveDividerDeccel))) > 0)
                 ship.velocity.y = 0;
     }
     
     if(ship.left || ship.right)
     {
-        ship.degree = ship.degreeVelocity;
+        ship.degree = ship.wantedDegree;
         
         if(ship.left)
             ship.degree = -ship.degree;
@@ -404,9 +428,9 @@ function setUpShip(ship)
 
 function findShipVelocity(ship)
 {
-    var slope = { x: ship.head.x - ship.butt.x, y: ship.head.y - ship.butt.y };
+    var velocity = { x: ship.head.x - ship.butt.x, y: ship.head.y - ship.butt.y };
     
-    return slope;
+    return velocity;
 }
 
 function setUpAsteroid(asteroid)
