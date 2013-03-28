@@ -20,14 +20,27 @@ function gameLoopSingle()
             m_iAsteroidz[index] = makeAsteroid();
             
         m_iAsteroidz[index] = setUpAsteroid(m_iAsteroidz[index]);
+        
+        if(insideAsteroid(m_Player.head, m_iAsteroidz[index]))
+            m_iAsteroidz = removeIndex(index, m_iAsteroidz);
     }
     
     for(var index = 0; index < m_iLazers.length; index++)
     {
         setUpLazer(m_iLazers[index]);
-        
+                
         if(lazerOutOfBounds(m_iLazers[index]))
             m_iLazers = removeIndex(index, m_iLazers);
+        
+        for(var pos = 0; pos < m_iAsteroidz.length; pos++)
+        {            
+            if(insideAsteroid(m_iLazers[index].head, m_iAsteroidz[pos]))
+            {
+                m_iAsteroidz[pos] = makeAsteroid(m_iAsteroidz[pos].center);
+                m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[pos].center));
+                m_iLazers = removeIndex(index, m_iLazers);
+            }
+        }
     }
     
     if((m_iAsterData.time += m_iSpeed.game) > m_iAsterData.maxTime)

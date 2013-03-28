@@ -6,7 +6,7 @@ var m_Player;
 var m_iAsteroidz;
 var m_iLazers;
 var m_iDistanceFromMap;
-var m_iAsterData = { starting: 10, time: 0, maxTime: 10000 };
+var m_iAsterData = { starting: 5, time: 0, maxTime: 10000 };
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
@@ -460,12 +460,19 @@ function setUpAsteroid(asteroid)
     return asteroid;
 }
 
-function makeAsteroid()
+function makeAsteroid(newCenter)
 {
-    var position = getRandomNumber(0, 4);
-    var degreeDivider = 1000;
-    var minDegree = 1;
-    var maxDegree = 100;
+    var defaultValue = true;
+    var position = getRandomNumber(0, 4);   // Determines which side of the map it is
+    var degreeDivider = 1000;   
+    var minDegree = 1;  // Minimum rotation angle for the asteroid
+    var maxDegree = 100;    // Maximum rotation angle the asteroid
+    var amountOfPoints = 6;
+    var center;
+    var xVerticalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
+    var yVerticalVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
+    var xHorizontaVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
+    var yHorizontalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
     
     var asteroid = 
     {
@@ -476,42 +483,46 @@ function makeAsteroid()
         width: 3,
         color: "white"
     };
-    
-    var amountOfPoints = 6;
-    var center;
-    var xVerticalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
-    var yVerticalVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
-    var xHorizontaVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
-    var yHorizontalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
-    
-    if(position == 0)   // Spawn above the map
-    {    
-        center = { x: getRandomNumber(0, m_iMap.width), y: -m_iDistanceFromMap };
+   
+    if(typeof newCenter != 'undefined')
+    {
+        defaultValue = false;
+        center = newCenter;
         asteroid.velocity.x = xVerticalVelocity;
         asteroid.velocity.y = yVerticalVelocity;
     }
-    
-    if(position == 1)   // Spawn below the map
-    {    
-        center = { x: getRandomNumber(0, m_iMap.width), y: m_iMap.height + m_iDistanceFromMap };
-        asteroid.velocity.x = xVerticalVelocity;
-        asteroid.velocity.y = -yVerticalVelocity;
-    }
-    
-    if(position == 2)   // Spawn left of the map
-    {    
-        center = { x: -m_iDistanceFromMap, y: getRandomNumber(0, m_iMap.height) };
-        asteroid.velocity.x = xHorizontaVelocity;
-        asteroid.velocity.y = yHorizontalVelocity;
-    }
-    
-    if(position == 3)   // Spawn right of the map
-    {    
-        center = { x: m_iMap.width + m_iDistanceFromMap, y: getRandomNumber(0, m_iMap.height) };
-        asteroid.velocity.x = -xHorizontaVelocity;
-        asteroid.velocity.y = yHorizontalVelocity;
-    }
+        
+    if(defaultValue)
+    {
+        if(position == 0)   // Spawn above the map
+        {    
+            center = { x: getRandomNumber(0, m_iMap.width), y: -m_iDistanceFromMap };
+            asteroid.velocity.x = xVerticalVelocity;
+            asteroid.velocity.y = yVerticalVelocity;
+        }
 
+        if(position == 1)   // Spawn below the map
+        {    
+            center = { x: getRandomNumber(0, m_iMap.width), y: m_iMap.height + m_iDistanceFromMap };
+            asteroid.velocity.x = xVerticalVelocity;
+            asteroid.velocity.y = -yVerticalVelocity;
+        }
+
+        if(position == 2)   // Spawn left of the map
+        {    
+            center = { x: -m_iDistanceFromMap, y: getRandomNumber(0, m_iMap.height) };
+            asteroid.velocity.x = xHorizontaVelocity;
+            asteroid.velocity.y = yHorizontalVelocity;
+        }
+
+        if(position == 3)   // Spawn right of the map
+        {    
+            center = { x: m_iMap.width + m_iDistanceFromMap, y: getRandomNumber(0, m_iMap.height) };
+            asteroid.velocity.x = -xHorizontaVelocity;
+            asteroid.velocity.y = yHorizontalVelocity;
+        }
+    }
+    
     asteroid.array.push(center);
 
     for(var index = 1; index < amountOfPoints; index++)
@@ -532,6 +543,17 @@ function makeAsteroid()
     }
     
     asteroid.center = findCenter(asteroid);
+    
+    var centerDiffX = center.x - asteroid.center.x; 
+    var centerDiffY = center.y - asteroid.center.y; 
+    asteroid.center.x += centerDiffX;
+    asteroid.center.y += centerDiffY;
+    
+    for(var index = 0; index < asteroid.array.length; index++)
+    {
+        asteroid.array[index].x += centerDiffX;
+        asteroid.array[index].y += centerDiffY;
+    }    
     
     return asteroid;
 }
@@ -593,6 +615,47 @@ function lazerOutOfBounds(lazer)
 function pointWithinMap(x, y, bufferX, bufferY)
 {
     if((x >= -bufferX && x <= m_iMap.width + bufferX) && (y >= -bufferY && y <= m_iMap.height + bufferY))
+        return true;
+    
+    return false;
+}
+
+function getEquation(pointA, pointB)
+{
+    var slopeX = pointB.x - pointA.x;
+    var slopeY = pointB.y - pointA.y;
+    var yIntercept = pointA.y - ((slopeY / slopeX) * pointA.x);
+    
+    return { slope: slopeY / slopeX, intercept: yIntercept } ;
+}
+
+function lessThanEquation(equation, point)
+{
+    if(equation.slope * point.x + equation.intercept > point.y)
+        return true;
+    
+    return false;
+}
+
+function insideAsteroid(point, asteroid)
+{
+    var howManyTrue = 0;
+    var asterEq;
+    
+    for(var index = 0; index < asteroid.array.length - 1; index++)
+    {
+        asterEq = getEquation(asteroid.array[index], asteroid.array[index + 1]);
+        
+        if(lessThanEquation(asterEq, point) == lessThanEquation(asterEq, asteroid.center))
+            howManyTrue++;
+    }
+    
+    asterEq = getEquation(asteroid.array[0], asteroid.array[asteroid.array.length - 1]);
+        
+    if(lessThanEquation(asterEq, point) == lessThanEquation(asterEq, asteroid.center))
+        howManyTrue++;
+    
+    if(howManyTrue >= asteroid.array.length)
         return true;
     
     return false;
