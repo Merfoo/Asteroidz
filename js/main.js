@@ -588,7 +588,7 @@ function makeNewLazer(ship)
 {
     var shipVelocity = findShipVelocity(ship);
     var pointTail = { x: ship.head.x, y: ship.head.y };
-    var pointHead = { x: pointTail.x + shipVelocity.x, y: pointTail.y + shipVelocity.y } ;
+    var pointHead = { x: pointTail.x + shipVelocity.x, y: pointTail.y + shipVelocity.y };
     var lineWidth = 2;
     var lineColor = "red";
     
@@ -629,24 +629,17 @@ function insideAsteroid(point, asteroid)
     var interPoint;
     var interDir;
     
-    for(var index = 0; index < asteroid.array.length - 1; index++)
+    for(var index = 0, indexAhead = 1; index < asteroid.array.length; index++)
     {
-        asterEq = getEquation(asteroid.array[index], asteroid.array[index + 1]);
+        indexAhead = (index + 1) % asteroid.array.length;
+        asterEq = getEquation(asteroid.array[index], asteroid.array[indexAhead]);
         interPoint = findIntersectPoint(pointEq, asterEq);
         interDir = getPointDirection(point, interPoint);
         
         if(pointDir.x == interDir.x && pointDir.y == interDir.y)
-            if(withinTwoPoints(asteroid.array[index], asteroid.array[index + 1], interPoint))
+            if(withinTwoPoints(asteroid.array[index], asteroid.array[indexAhead], interPoint))
                 howManyTrue++;
     }
-    
-    asterEq = getEquation(asteroid.array[0], asteroid.array[asteroid.array.length - 1]);
-    interPoint = findIntersectPoint(pointEq, asterEq);
-    interDir = getPointDirection(point, interPoint);
-        
-    if(pointDir.x == interDir.x && pointDir.y == interDir.y)
-        if(withinTwoPoints(asteroid.array[0], asteroid.array[asteroid.array.length - 1], interPoint))
-            howManyTrue++;
     
     if(howManyTrue % 2 == 0)
         return false;
