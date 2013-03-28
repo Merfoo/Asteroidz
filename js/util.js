@@ -80,4 +80,63 @@ function abs(number)
     return Math.abs(number);
 }
 
+function getEquation(pointA, pointB)
+{
+    var slopeX = pointB.x - pointA.x;
+    var slopeY = pointB.y - pointA.y;
+    var yIntercept = pointA.y - ((slopeY / slopeX) * pointA.x);
+    
+    return { slope: slopeY / slopeX, intercept: yIntercept } ;
+}
 
+function lessThanEquation(equation, point)
+{
+    if(runEquation(equation, point) > point.y)
+        return true;
+    
+    return false;
+}
+
+function runEquation(eq, x)
+{
+    return (eq.slope * x) + eq.intercept;
+}
+
+function withinTwoPoints(pointA, pointB, testingPoint)
+{
+    var eq = getEquation(pointA, pointB);
+    var y = runEquation(eq, testingPoint.x);
+    
+    if((y > pointA.y && y < pointB.y) || (y < pointA.y && y > pointB.y))
+        return true;
+        
+    return false;
+}
+
+function findIntersectPoint(eqOne, eqTwo)
+{
+    var intersectX = (eqTwo.intercept - eqOne.intercept) / (eqOne.slope - eqTwo.slope);
+    var intersectY = runEquation(eqOne, intersectX);
+    
+    return { x: intersectX, y: intersectY };
+}
+
+function getPointDirection(pointBeingCompared, pointComparedTo)
+{
+    var dirX = 0;
+    var dirY = 0;
+    
+    if(pointBeingCompared.x < pointComparedTo.x)
+        dirX = -1;
+    
+    if(pointBeingCompared.x > pointComparedTo.x)
+        dirX = 1;
+    
+    if(pointBeingCompared.y < pointComparedTo.y)
+        dirY = -1;
+    
+    if(pointBeingCompared.y > pointComparedTo.y)
+        dirY = 1;
+    
+    return { x: dirX, y: dirY };
+}

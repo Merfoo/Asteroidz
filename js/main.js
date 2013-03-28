@@ -620,43 +620,36 @@ function pointWithinMap(x, y, bufferX, bufferY)
     return false;
 }
 
-function getEquation(pointA, pointB)
-{
-    var slopeX = pointB.x - pointA.x;
-    var slopeY = pointB.y - pointA.y;
-    var yIntercept = pointA.y - ((slopeY / slopeX) * pointA.x);
-    
-    return { slope: slopeY / slopeX, intercept: yIntercept } ;
-}
-
-function lessThanEquation(equation, point)
-{
-    if(equation.slope * point.x + equation.intercept > point.y)
-        return true;
-    
-    return false;
-}
-
 function insideAsteroid(point, asteroid)
 {
     var howManyTrue = 0;
     var asterEq;
+    var pointEq = getEquation(point, asteroid.center);
+    var pointDir = getPointDirection(point, asteroid.center);
+    var interPoint;
+    var interDir;
     
     for(var index = 0; index < asteroid.array.length - 1; index++)
     {
         asterEq = getEquation(asteroid.array[index], asteroid.array[index + 1]);
+        interPoint = findIntersectPoint(pointEq, asterEq);
+        interDir = getPointDirection(point, interPoint);
         
-        if(lessThanEquation(asterEq, point) == lessThanEquation(asterEq, asteroid.center))
-            howManyTrue++;
+        if(pointDir.x == interDir.x && pointDir.y == interDir.y)
+            if(withinTwoPoints(asteroid.array[index], asteroid.array[index + 1], interPoint))
+                howManyTrue++;
     }
     
     asterEq = getEquation(asteroid.array[0], asteroid.array[asteroid.array.length - 1]);
+    interPoint = findIntersectPoint(pointEq, asterEq);
+    interDir = getPointDirection(point, interPoint);
         
-    if(lessThanEquation(asterEq, point) == lessThanEquation(asterEq, asteroid.center))
-        howManyTrue++;
+    if(pointDir.x == interDir.x && pointDir.y == interDir.y)
+        if(withinTwoPoints(asteroid.array[0], asteroid.array[asteroid.array.length - 1], interPoint))
+            howManyTrue++;
     
-    if(howManyTrue >= asteroid.array.length)
-        return true;
+    if(howManyTrue % 2 == 0)
+        return false;
     
-    return false;
+    return true;
 }

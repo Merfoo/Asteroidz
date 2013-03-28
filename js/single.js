@@ -36,8 +36,8 @@ function gameLoopSingle()
         {            
             if(insideAsteroid(m_iLazers[index].head, m_iAsteroidz[pos]))
             {
-                m_iAsteroidz[pos] = makeAsteroid(m_iAsteroidz[pos].center);
                 m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[pos].center));
+                m_iAsteroidz[pos] = makeAsteroid(m_iAsteroidz[pos].center);
                 m_iLazers = removeIndex(index, m_iLazers);
             }
         }
