@@ -200,9 +200,9 @@ function resetPlayer(centerX, centerY)
 {
     var middleWidth = centerX;
     var middleHeight = centerY;
-    var shipWidth = floor(m_iMap.width / 100);
-    var shipHeight = floor(m_iMap.height / 10);
-    var buttDistance = floor(shipHeight - floor(shipHeight / 3));
+    var shipWidth = floor(m_iMap.width / 125);
+    var shipHeight = floor(m_iMap.height / 13);
+    var buttDistance = floor(shipHeight - floor(shipHeight / 6));
     
     var player =
     {        
