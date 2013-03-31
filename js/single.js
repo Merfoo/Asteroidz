@@ -16,12 +16,12 @@ function gameLoopSingle()
     
     for(var index = 0; index < m_iAsteroidz.length; index++)
     {
-        if(asteroidOutOfBounds(m_iAsteroidz[index]))
+        if(isOutOfBounds(m_iAsteroidz[index].coordinates))
             m_iAsteroidz[index] = makeAsteroid();
             
         m_iAsteroidz[index] = setUpAsteroid(m_iAsteroidz[index]);
         
-        if(insideAsteroid(m_Player.head, m_iAsteroidz[index]))
+        if(insideEachOther(m_Player.coordinates, m_iAsteroidz[index].coordinates, m_Player.center, m_iAsteroidz[index].center))
             m_iAsteroidz = removeIndex(index, m_iAsteroidz);
     }
     
@@ -29,15 +29,15 @@ function gameLoopSingle()
     {
         setUpLazer(m_iLazers[index]);
                 
-        if(lazerOutOfBounds(m_iLazers[index]))
+        if(isOutOfBounds(m_iLazers[index].coordinates))
             m_iLazers = removeIndex(index, m_iLazers);
         
         for(var pos = 0; pos < m_iAsteroidz.length; pos++)
         {            
-            if(insideAsteroid(m_iLazers[index].head, m_iAsteroidz[pos]))
+            if(insideEachOther(m_iLazers[index].coordinates, m_iAsteroidz[pos].coordinates, m_iLazers[index].center, m_iAsteroidz[pos].center))
             {
-                m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[pos].center));
-                m_iAsteroidz[pos] = makeAsteroid(m_iAsteroidz[pos].center);
+                m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[pos].center, m_iAsteroidz[pos].size * (3 / 4)));
+                m_iAsteroidz[pos] = makeAsteroid(m_iAsteroidz[pos].center, m_iAsteroidz[pos].size * (3 / 4));
                 m_iLazers = removeIndex(index, m_iLazers);
             }
         }
@@ -48,6 +48,8 @@ function gameLoopSingle()
         m_iAsterData.time = 0;
         m_iAsteroidz.push(makeAsteroid());
     }
+    
+    console.log(m_iLazers.length);
 }
 
 // Stops loop
@@ -95,7 +97,7 @@ function keyBoardUpSingle(event)
         m_Player.left = false;
 
     if (event.keyCode == m_iKeyId.a)    // A was pressed
-        m_iLazers.push(makeNewLazer(m_Player));
+        m_iLazers.push(makeLazer(m_Player));
         
     if (event.keyCode == m_iKeyId.space)    // Space bar was pressed
         m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle();

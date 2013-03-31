@@ -6,7 +6,7 @@ var m_Player;
 var m_iAsteroidz;
 var m_iLazers;
 var m_iDistanceFromMap;
-var m_iAsterData = { starting: 5, time: 0, maxTime: 10000 };
+var m_iAsterData = { starting: 5, time: 0, maxTime: 5000 };
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
@@ -47,7 +47,7 @@ function initializeCanvas()
     {
         height: window.innerHeight, 
         width: window.innerWidth,
-        toolbarThickness: floor(this.height / 25),
+        toolbarThickness: floor(window.innerHeight / 25),
         toolbarColor: "black",
         backgroundColor: "black"
     };
@@ -94,43 +94,17 @@ function showStartMenu(bVisible)
     }
 }
 
-function paintShip(ship, color)
+function paintObject(array, width, color)
 {    
     m_CanvasMain.beginPath();
-    m_CanvasMain.lineWidth = ship.width;
-    m_CanvasMain.moveTo(ship.head.x, ship.head.y);
-    m_CanvasMain.lineTo(ship.tailRight.x, ship.tailRight.y);
-    m_CanvasMain.lineTo(ship.butt.x, ship.butt.y);
-    m_CanvasMain.lineTo(ship.tailLeft.x, ship.tailLeft.y);
-    m_CanvasMain.lineTo(ship.head.x, ship.head.y);
+    m_CanvasMain.lineWidth = width;
+    m_CanvasMain.moveTo(array[0].x, array[0].y);
+    
+    for(var index = 0; index < array.length; index++)
+        m_CanvasMain.lineTo(array[index].x, array[index].y);
+    
+    m_CanvasMain.lineTo(array[0].x, array[0].y);
     m_CanvasMain.strokeStyle = color;
-    m_CanvasMain.stroke();
-    m_CanvasMain.closePath();
-}
-
-// Paint asteroid
-function paintAsteroid(asteroid)
-{
-    m_CanvasMain.beginPath();
-    m_CanvasMain.lineWidth = asteroid.width;
-    m_CanvasMain.moveTo(asteroid.array[0].x, asteroid.array[0].y);
-    
-    for(var index = 1; index < asteroid.array.length; index++)
-        m_CanvasMain.lineTo(asteroid.array[index].x, asteroid.array[index].y);
-    
-    m_CanvasMain.lineTo(asteroid.array[0].x, asteroid.array[0].y);
-    m_CanvasMain.strokeStyle = asteroid.color;
-    m_CanvasMain.stroke();
-    m_CanvasMain.closePath();
-}
-
-function paintLazer(lazer)
-{
-    m_CanvasMain.beginPath();
-    m_CanvasMain.lineWidth = lazer.width;
-    m_CanvasMain.moveTo(lazer.head.x, lazer.head.y);
-    m_CanvasMain.lineTo(lazer.tail.x, lazer.tail.y);
-    m_CanvasMain.strokeStyle = lazer.color;
     m_CanvasMain.stroke();
     m_CanvasMain.closePath();
 }
@@ -198,8 +172,11 @@ function doKeyDown(event)
         if(m_bGameStatus.single)
             keyBoardDownSingle(event);
     
-    event.preventDefault();
-    return false;
+    if(event.keyCode == m_iKeyId.space || event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown)
+    {
+        event.preventDefault();
+        return false;
+    }
 }
 
 // Handles key up events
@@ -212,8 +189,11 @@ function doKeyUp(event)
         if(m_bGameStatus.single)
             keyBoardUpSingle(event);
     
-    event.preventDefault();
-    return false;
+    if(event.keyCode == m_iKeyId.space || event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown)
+    {
+        event.preventDefault();
+        return false;
+    }
 }
 
 function resetPlayer(centerX, centerY)
@@ -221,30 +201,12 @@ function resetPlayer(centerX, centerY)
     var middleWidth = centerX;
     var middleHeight = centerY;
     var shipWidth = floor(m_iMap.width / 100);
-    var shipHeight = floor(middleHeight / 5);
+    var shipHeight = floor(m_iMap.height / 10);
     var buttDistance = floor(shipHeight - floor(shipHeight / 3));
     
     var player =
-    {
-        head: 
-        { 
-            x: middleWidth,
-            y: middleHeight 
-        },
-                  
-        tailLeft: 
-        { 
-            x: middleWidth - shipWidth,
-            y: middleHeight + shipHeight
-        },
-
-        tailRight: 
-        { 
-            x: middleWidth + shipWidth,
-            y: middleHeight + shipHeight
-        },
-        
-        butt:
+    {        
+        center:
         {
             x: middleWidth,
             y: middleHeight + buttDistance
@@ -267,7 +229,8 @@ function resetPlayer(centerX, centerY)
             x: false,
             y: false
         },
-                
+           
+        coordinates: new Array(),
         color: "white",
         up: false,
         down: false,
@@ -278,35 +241,23 @@ function resetPlayer(centerX, centerY)
         wantedDegree: .125
     };
     
+    player.coordinates.push({ x: player.center.x, y: player.center.y - buttDistance }); // Head
+    player.coordinates.push({ x: player.center.x + shipWidth, y: player.center.y + shipHeight - buttDistance }); // Tail right
+    player.coordinates.push(player.center); // Butt
+    player.coordinates.push({ x: player.center.x - shipWidth, y: player.center.y + shipHeight - buttDistance });    // Tail left
+    
     return player;
 }
 
-function rotateShip(ship, angle)
-{
-    var centerX = ship.butt.x;
-    var centerY = ship.butt.y;
-    var newHead = rotatePoint(ship.head.x, ship.head.y, angle, centerX, centerY);
-    var newTailLeft = rotatePoint(ship.tailLeft.x, ship.tailLeft.y, angle, centerX, centerY);
-    var newTailRight = rotatePoint(ship.tailRight.x, ship.tailRight.y, angle, centerX, centerY);
-    var newButt = rotatePoint(ship.butt.x, ship.butt.y, angle, centerX, centerY);
-    
-    ship.head = newHead;
-    ship.tailLeft = newTailLeft;
-    ship.tailRight = newTailRight;
-    ship.butt = newButt;
-}
-
-function rotateAsteroid(asteroid)
-{
-    for(var index = 0; index < asteroid.array.length; index++)
-        asteroid.array[index] = rotatePoint(asteroid.array[index].x, asteroid.array[index].y, asteroid.degree, asteroid.center.x, asteroid.center.y);
-    
-    return asteroid;
+function rotateObject(array, center, angle)
+{    
+    for(var index = 0; index < array.length; index++)
+        array[index] = rotatePoint(array[index].x, array[index].y, angle, center.x, center.y);
 }
 
 function setUpShip(ship)
 {  
-    rotateShip(ship, ship.degree);
+    rotateObject(ship.coordinates, ship.center, ship.degree);
     var shipMoveDividerAccel = 10;
     var shipMoveDividerDeccel = 50;
     
@@ -387,227 +338,216 @@ function setUpShip(ship)
     if(!ship.left && !ship.right)
         ship.degree = 0;
     
-    ship.head.x += ship.velocity.x;
-    ship.tailLeft.x += ship.velocity.x;
-    ship.tailRight.x += ship.velocity.x;
-    ship.butt.x += ship.velocity.x;
-    
-    ship.head.y += ship.velocity.y;
-    ship.tailLeft.y += ship.velocity.y;
-    ship.tailRight.y += ship.velocity.y;
-    ship.butt.y += ship.velocity.y;
+    moveObject(ship.coordinates, ship.center, ship.velocity.x, ship.velocity.y);
     
     // Putting the ship on the other side if its out of bounds
-    if(ship.head.x < 0 && ship.tailLeft.x < 0 && ship.tailRight.x < 0 && ship.butt.x < 0)
-    {       
-        ship.head.x += m_iMap.width;
-        ship.tailLeft.x += m_iMap.width;;
-        ship.tailRight.x += m_iMap.width;;
-        ship.butt.x += m_iMap.width;;
-    }
+    if(ship.center.x < 0)
+        moveObject(ship.coordinates, ship.center, m_iMap.width, 0);
         
-    if(ship.head.x > m_iMap.width && ship.tailLeft.x > m_iMap.width && ship.tailRight.x > m_iMap.width && ship.butt.x > m_iMap.width)
-    {       
-        ship.head.x -= m_iMap.width;
-        ship.tailLeft.x -= m_iMap.width;
-        ship.tailRight.x -= m_iMap.width;
-        ship.butt.x -= m_iMap.width;
-    }
+    if(ship.center.x > m_iMap.width)
+        moveObject(ship.coordinates, ship.center, -m_iMap.width, 0);
     
-    if(ship.head.y < 0 && ship.tailLeft.y < 0 && ship.tailRight.y < 0 && ship.butt.y < 0)
-    {       
-        ship.head.y += m_iMap.height;
-        ship.tailLeft.y += m_iMap.height;;
-        ship.tailRight.y += m_iMap.height;;
-        ship.butt.y += m_iMap.height;;
-    }
+    if(ship.center.y < 0)
+        moveObject(ship.coordinates, ship.center, 0, m_iMap.height);
         
-    if(ship.head.y > m_iMap.height && ship.tailLeft.y > m_iMap.height && ship.tailRight.y > m_iMap.height && ship.butt.y > m_iMap.height)
-    {       
-        ship.head.y -= m_iMap.height;
-        ship.tailLeft.y -= m_iMap.height;;
-        ship.tailRight.y -= m_iMap.height;;
-        ship.butt.y -= m_iMap.height;;
-    }
+    if(ship.center.y > m_iMap.height)
+        moveObject(ship.coordinates, ship.center, 0, -m_iMap.height);
     
     // Paint ship
-    paintShip(ship, ship.color);
+    paintObject(ship.coordinates, ship.width, ship.color);
     
     return ship;
 }
 
+function moveObject(array, center, x, y)
+{
+    for(var index = 0; index < array.length; index++)
+    {
+        array[index].x += x;
+        array[index].y += y;
+    }
+    
+    center.x += x;
+    center.y += y;
+}
+
 function findShipVelocity(ship)
 {
-    var velocity = { x: ship.head.x - ship.butt.x, y: ship.head.y - ship.butt.y };
+    var velocity = { x: ship.coordinates[0].x - ship.center.x, y: ship.coordinates[0].y - ship.center.y };
     
     return velocity;
 }
 
 function setUpAsteroid(asteroid)
 {  
-    asteroid = rotateAsteroid(asteroid);
-    
-    for(var index = 0;index < asteroid.array.length; index++)
-    {
-        asteroid.array[index].x += asteroid.velocity.x;
-        asteroid.array[index].y += asteroid.velocity.y;
-    }
-    
-    asteroid.center.x += asteroid.velocity.x;
-    asteroid.center.y += asteroid.velocity.y;
-    paintAsteroid(asteroid);
+    rotateObject(asteroid.coordinates, asteroid.center, asteroid.degree);
+    moveObject(asteroid.coordinates, asteroid.center, asteroid.velocity.x, asteroid.velocity.y);
+    paintObject(asteroid.coordinates, asteroid.width, asteroid.color);
   
     return asteroid;
 }
 
-function makeAsteroid(newCenter)
+function makeAsteroid(newCenter, newSizeMidPoint)
 {
-    var defaultValue = true;
-    var position = getRandomNumber(0, 4);   // Determines which side of the map it is
+    var sizeMidPoint = 60;
+    var widthDivider = 200;
+    var size = getRandomNumber(10, 40);
     var degreeDivider = 1000;   
-    var minDegree = 1;  // Minimum rotation angle for the asteroid
     var maxDegree = 100;    // Maximum rotation angle the asteroid
     var amountOfPoints = 6;
-    var center;
-    var xVerticalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
-    var yVerticalVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
-    var xHorizontaVelocity = floor(getRandomNumber(floor(m_iMap.width / 300), floor(m_iMap.width / 200)));
-    var yHorizontalVelocity = floor(getRandomNumber(0, 10) >  5 ? getRandomNumber(0, floor(m_iMap.width / 200)) : -getRandomNumber(0, floor(m_iMap.width / 200)));
+    var center = { x: 0, y: 0 };
     
     var asteroid = 
     {
-        array: new Array(),
+        coordinates: new Array(),
         velocity: { x: 0, y: 0},
         center: { x: 0, y: 0},
-        degree: getRandomNumber(0, 10) > 4 ? -getRandomNumber(minDegree, maxDegree) / degreeDivider : getRandomNumber(minDegree, maxDegree) / degreeDivider, 
+        degree: getRandomNumber(-maxDegree, maxDegree) / degreeDivider, 
         width: 3,
+        size: 0,
         color: "white"
     };
    
-    if(typeof newCenter != 'undefined')
+    if(newCenter != null && newSizeMidPoint != null) // If true, spawn inside the map
     {
-        defaultValue = false;
+        var xDir = getRandomNumber(0, 10) > 5 ? -1 : 1;
+        var yDir = getRandomNumber(0, 10) > 5 ? -1 : 1;
+        asteroid.velocity.x = xDir * getRandomNumber(1, floor(m_iMap.width / widthDivider));
+        asteroid.velocity.y = yDir * getRandomNumber(1, floor(m_iMap.width / widthDivider));
         center = newCenter;
-        asteroid.velocity.x = xVerticalVelocity;
-        asteroid.velocity.y = yVerticalVelocity;
+        sizeMidPoint = newSizeMidPoint;
     }
+    
+    else    // Else, spawn outside the map
+    {   
+        var position = getRandomNumber(1, 4);
         
-    if(defaultValue)
-    {
-        if(position == 0)   // Spawn above the map
-        {    
-            center = { x: getRandomNumber(0, m_iMap.width), y: -m_iDistanceFromMap };
-            asteroid.velocity.x = xVerticalVelocity;
-            asteroid.velocity.y = yVerticalVelocity;
+        if(position == 1 || position == 3) // Spawn left/right of the map
+        {
+            center.y = getRandomNumber(0, m_iMap.height);
+            asteroid.velocity.y = getRandomNumber(-floor((m_iMap.width / widthDivider) / 2), floor((m_iMap.width / widthDivider) / 2));
+            
+            if(position == 1)   // Left
+            {
+                center.x = getRandomNumber(-m_iDistanceFromMap, -m_iDistanceFromMap / 2); 
+                asteroid.velocity.x = getRandomNumber(1, floor(m_iMap.width / widthDivider));
+            }
+            
+            else if(position == 3)  // Right
+            {
+                center.x = getRandomNumber((m_iDistanceFromMap / 2) + m_iMap.width, m_iDistanceFromMap + m_iMap.width);
+                asteroid.velocity.x = getRandomNumber(-floor(m_iMap.width / widthDivider), 1);
+            }
         }
-
-        if(position == 1)   // Spawn below the map
-        {    
-            center = { x: getRandomNumber(0, m_iMap.width), y: m_iMap.height + m_iDistanceFromMap };
-            asteroid.velocity.x = xVerticalVelocity;
-            asteroid.velocity.y = -yVerticalVelocity;
-        }
-
-        if(position == 2)   // Spawn left of the map
-        {    
-            center = { x: -m_iDistanceFromMap, y: getRandomNumber(0, m_iMap.height) };
-            asteroid.velocity.x = xHorizontaVelocity;
-            asteroid.velocity.y = yHorizontalVelocity;
-        }
-
-        if(position == 3)   // Spawn right of the map
-        {    
-            center = { x: m_iMap.width + m_iDistanceFromMap, y: getRandomNumber(0, m_iMap.height) };
-            asteroid.velocity.x = -xHorizontaVelocity;
-            asteroid.velocity.y = yHorizontalVelocity;
+        
+        else if(position == 2 || position == 4) // Spawn above/below map
+        {
+            center.x = getRandomNumber(0, m_iMap.width);
+            asteroid.velocity.x = getRandomNumber(-floor((m_iMap.width / widthDivider) / 2), floor((m_iMap.width / widthDivider) / 2));
+            
+            if(position == 2)   // Above
+            {
+                center.y = getRandomNumber(-m_iDistanceFromMap, -m_iDistanceFromMap / 2);
+                asteroid.velocity.y = getRandomNumber(1, floor(m_iMap.width / widthDivider));
+            }
+            
+            else if(position == 4)  // Below
+            {
+                center.y = getRandomNumber((m_iDistanceFromMap / 2) + m_iMap.height, m_iMap.height + m_iDistanceFromMap);
+                asteroid.velocity.y = getRandomNumber(-floor(m_iMap.width / widthDivider), 1);
+            }
         }
     }
     
-    asteroid.array.push(center);
+    asteroid.coordinates.push(center);
 
     for(var index = 1; index < amountOfPoints; index++)
     {
-        var distance = getRandomNumber(25, 100);
+        var distance = getRandomNumber(sizeMidPoint - size, sizeMidPoint + size);
         var point;
         
         if(index <= amountOfPoints / 3)
-            point = { x: asteroid.array[index - 1].x + distance, y: getRandomNumber(asteroid.array[index - 1].y - floor(distance / 2), asteroid.array[index - 1].y + floor(distance / 2)) };    
+            point = 
+            { 
+                x: asteroid.coordinates[index - 1].x + distance, 
+                y: getRandomNumber(asteroid.coordinates[index - 1].y - floor(distance / 2), asteroid.coordinates[index - 1].y + floor(distance * (3 / 4))) 
+            };    
             
         else if(index > amountOfPoints / 3 && index <= (amountOfPoints / 3) + (amountOfPoints / 3))
-            point = { x: getRandomNumber(asteroid.array[index - 1].x - floor(distance / 2), asteroid.array[index - 1].x + floor(distance / 2)), y: asteroid.array[index - 1].y + distance };
+            point = 
+            { 
+                x: getRandomNumber(asteroid.coordinates[index - 1].x - floor(distance * (3 / 4)), asteroid.coordinates[index - 1].x + floor(distance / 2)),
+                y: asteroid.coordinates[index - 1].y + distance 
+            };
         
         else
-            point = { x: asteroid.array[index - 1].x - distance, y: getRandomNumber(asteroid.array[index - 1].y - floor(distance / 2), asteroid.array[index - 1].y + floor(distance / 2)) };
+            point = 
+            { 
+                x: asteroid.coordinates[index - 1].x - distance, 
+                y: getRandomNumber(asteroid.coordinates[index - 1].y - floor(distance / 2), asteroid.coordinates[index - 1].y + floor(distance * (3 / 4))) 
+            };
         
-        asteroid.array.push(point);
+        asteroid.coordinates.push(point);
     }
     
-    asteroid.center = findCenter(asteroid);
-    
+    asteroid.center = findCenter(asteroid.coordinates);
+    asteroid.size = size;
     var centerDiffX = center.x - asteroid.center.x; 
     var centerDiffY = center.y - asteroid.center.y; 
     asteroid.center.x += centerDiffX;
     asteroid.center.y += centerDiffY;
     
-    for(var index = 0; index < asteroid.array.length; index++)
+    for(var index = 0; index < asteroid.coordinates.length; index++)
     {
-        asteroid.array[index].x += centerDiffX;
-        asteroid.array[index].y += centerDiffY;
+        asteroid.coordinates[index].x += centerDiffX;
+        asteroid.coordinates[index].y += centerDiffY;
     }    
     
     return asteroid;
 }
 
-function findCenter(asteroid)
+function findCenter(array)
 {
     var centerX = 0;
     var centerY = 0;
     
-    for(var index = 0; index < asteroid.array.length; index++)
+    for(var index = 0; index < array.length; index++)
     {
-        centerX += asteroid.array[index].x;
-        centerY += asteroid.array[index].y;
+        centerX += array[index].x;
+        centerY += array[index].y;
     }
     
-    centerX = centerX / asteroid.array.length;
-    centerY = centerY / asteroid.array.length;
+    centerX /= array.length;
+    centerY /= array.length;
     
     return { x: centerX, y: centerY };
 }
 
-function asteroidOutOfBounds(asteroid)
-{
-    for(var index = 0; index < asteroid.array.length; index++)
-        if(pointWithinMap(asteroid.array[index].x, asteroid.array[index].y, m_iDistanceFromMap, m_iDistanceFromMap))
-            return false;
-
-    return true;
-}
-
-function makeNewLazer(ship)
+function makeLazer(ship)
 {
     var shipVelocity = findShipVelocity(ship);
-    var pointTail = { x: ship.head.x, y: ship.head.y };
-    var pointHead = { x: pointTail.x + shipVelocity.x, y: pointTail.y + shipVelocity.y };
+    var array = new Array();
     var lineWidth = 2;
     var lineColor = "red";
+    var newCenter = findCenter(array);
     
-    return { tail: pointTail, head: pointHead, velocity: { x: shipVelocity.x / 2, y: shipVelocity.y / 2 }, width: lineWidth, color: lineColor };
+    array.push({ x: ship.coordinates[0].x, y: ship.coordinates[0].y });
+    array.push({ x: array[0].x + shipVelocity.x, y: array[0].y + shipVelocity.y });
+    
+    return { coordinates: array, velocity: { x: shipVelocity.x / 2, y: shipVelocity.y / 2 }, center: newCenter, width: lineWidth, color: lineColor };
 }
 
 function setUpLazer(lazer)
 {
-    lazer.head.x += lazer.velocity.x;
-    lazer.head.y += lazer.velocity.y;
-    lazer.tail.x += lazer.velocity.x;
-    lazer.tail.y += lazer.velocity.y;
-    paintLazer(lazer);
+    moveObject(lazer.coordinates, lazer.center, lazer.velocity.x, lazer.velocity.y);
+    paintObject(lazer.coordinates, lazer.width, lazer.color);
 }
 
-function lazerOutOfBounds(lazer)
+function isOutOfBounds(array)
 {
-    if(pointWithinMap(lazer.head.x, lazer.head.y, 0, 0) || pointWithinMap(lazer.tail.x, lazer.tail.y, 0, 0))
-        return false;
+    for(var index = 0; index < array.length; index++)
+        if(pointWithinMap(array[index].x, array[index].y, m_iDistanceFromMap, m_iDistanceFromMap))
+            return false;
     
     return true;
 }
@@ -620,24 +560,40 @@ function pointWithinMap(x, y, bufferX, bufferY)
     return false;
 }
 
-function insideAsteroid(point, asteroid)
+function insideEachOther(arrayOne, arrayTwo, centerOne, centerTwo)
+{
+    for(var index = 0; index < arrayOne.length; index++)
+        if(insideObject(arrayOne[index], arrayTwo, centerTwo))
+            return true;
+    
+    // If you uncomment this, the collision for the ship will be true all the time
+    // and the shooting a lot of lazers will cause the game to lag, like really bad.
+    // Not sure why ... I know it loops a lot, but still
+//    for(var index = 0; index < arrayTwo.length; index++)
+//        if(insideObject(arrayTwo[index], arrayOne, centerOne))
+//            return true;
+    
+    return false;
+}
+
+function insideObject(point, array, center)
 {
     var howManyTrue = 0;
-    var asterEq;
-    var pointEq = getEquation(point, asteroid.center);
-    var pointDir = getPointDirection(point, asteroid.center);
+    var sideEq;
+    var pointEq = getEquation(point, center);
+    var pointDir = getPointDirection(point, center);
     var interPoint;
     var interDir;
     
-    for(var index = 0, indexAhead = 1; index < asteroid.array.length; index++)
+    for(var index = 0, indexAhead = 1; index < array.length; index++)
     {
-        indexAhead = (index + 1) % asteroid.array.length;
-        asterEq = getEquation(asteroid.array[index], asteroid.array[indexAhead]);
-        interPoint = findIntersectPoint(pointEq, asterEq);
+        indexAhead = (index + 1) % array.length;
+        sideEq = getEquation(array[index], array[indexAhead]);
+        interPoint = findIntersectPoint(pointEq, sideEq);
         interDir = getPointDirection(point, interPoint);
         
         if(pointDir.x == interDir.x && pointDir.y == interDir.y)
-            if(withinTwoPoints(asteroid.array[index], asteroid.array[indexAhead], interPoint))
+            if(withinTwoPoints(array[index], array[indexAhead], interPoint))
                 howManyTrue++;
     }
     
