@@ -25,6 +25,7 @@ document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar w
 // Initialize canvas
 function initializeGame()
 {
+    alert("Hi Grady! Its me, Merfoo!!!");
     initializeCanvas(); 
     paintBackground();
     showStartMenu(true);
