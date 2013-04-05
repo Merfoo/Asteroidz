@@ -3,10 +3,10 @@
 // Contains map width, map height, color and toolbar thickness
 var m_iMap;
 var m_Player;
-var m_iAsteroidz;
-var m_iLazers;
-var m_iDistanceFromMap;
-var m_iAsterData = { starting: 5, time: 0, maxTime: 5000 };
+var m_iAsteroidz;   // Has asteroids position info
+var m_iLazers;  // Has lazers position info
+var m_iLazerVar = { setUpYet: false };
+var m_iAsterVar = { starting: 5, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123};    // Contains variables related to asteroids
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
@@ -71,10 +71,9 @@ function clearGameScreen()
 // Initialize the astroidz array with 10
 function initializeAsteroidz()
 {
-    m_iDistanceFromMap = 250;
     m_iAsteroidz = new Array();
     
-    for(var index = 0; index < m_iAsterData.starting; index++)
+    for(var index = 0; index < m_iAsterVar.starting; index++)
         m_iAsteroidz.push(makeAsteroid());
 }
 
@@ -100,7 +99,7 @@ function paintObject(array, width, color)
     m_CanvasMain.lineWidth = width;
     m_CanvasMain.moveTo(array[0].x, array[0].y);
     
-    for(var index = 0; index < array.length; index++)
+    for(var index = 1; index < array.length; index++)
         m_CanvasMain.lineTo(array[index].x, array[index].y);
     
     m_CanvasMain.lineTo(array[0].x, array[0].y);
@@ -389,6 +388,8 @@ function setUpAsteroid(asteroid)
 
 function makeAsteroid(newCenter, newSizeMidPoint)
 {
+    var xTotal = 0;
+    var yTotal = 0;
     var sizeMidPoint = 60;
     var widthDivider = 200;
     var size = getRandomNumber(10, 40);
@@ -429,13 +430,13 @@ function makeAsteroid(newCenter, newSizeMidPoint)
             
             if(position == 1)   // Left
             {
-                center.x = getRandomNumber(-m_iDistanceFromMap, -m_iDistanceFromMap / 2); 
+                center.x = getRandomNumber(-m_iAsterVar.distFromMap, -m_iAsterVar.distFromMap / 2); 
                 asteroid.velocity.x = getRandomNumber(1, floor(m_iMap.width / widthDivider));
             }
             
             else if(position == 3)  // Right
             {
-                center.x = getRandomNumber((m_iDistanceFromMap / 2) + m_iMap.width, m_iDistanceFromMap + m_iMap.width);
+                center.x = getRandomNumber((m_iAsterVar.distFromMap / 2) + m_iMap.width, m_iAsterVar.distFromMap + m_iMap.width);
                 asteroid.velocity.x = getRandomNumber(-floor(m_iMap.width / widthDivider), 1);
             }
         }
@@ -447,20 +448,22 @@ function makeAsteroid(newCenter, newSizeMidPoint)
             
             if(position == 2)   // Above
             {
-                center.y = getRandomNumber(-m_iDistanceFromMap, -m_iDistanceFromMap / 2);
+                center.y = getRandomNumber(-m_iAsterVar.distFromMap, -m_iAsterVar.distFromMap / 2);
                 asteroid.velocity.y = getRandomNumber(1, floor(m_iMap.width / widthDivider));
             }
             
             else if(position == 4)  // Below
             {
-                center.y = getRandomNumber((m_iDistanceFromMap / 2) + m_iMap.height, m_iMap.height + m_iDistanceFromMap);
+                center.y = getRandomNumber((m_iAsterVar.distFromMap / 2) + m_iMap.height, m_iMap.height + m_iAsterVar.distFromMap);
                 asteroid.velocity.y = getRandomNumber(-floor(m_iMap.width / widthDivider), 1);
             }
         }
     }
     
     asteroid.coordinates.push(center);
-
+    xTotal += asteroid.coordinates[0].x;
+    yTotal += asteroid.coordinates[0].y;
+    
     for(var index = 1; index < amountOfPoints; index++)
     {
         var distance = getRandomNumber(sizeMidPoint - size, sizeMidPoint + size);
@@ -488,39 +491,16 @@ function makeAsteroid(newCenter, newSizeMidPoint)
             };
         
         asteroid.coordinates.push(point);
+        xTotal += point.x;
+        yTotal += point.y;
     }
     
-    asteroid.center = findCenter(asteroid.coordinates);
-    asteroid.size = size;
-    var centerDiffX = center.x - asteroid.center.x; 
-    var centerDiffY = center.y - asteroid.center.y; 
-    asteroid.center.x += centerDiffX;
-    asteroid.center.y += centerDiffY;
-    
-    for(var index = 0; index < asteroid.coordinates.length; index++)
-    {
-        asteroid.coordinates[index].x += centerDiffX;
-        asteroid.coordinates[index].y += centerDiffY;
-    }    
+    xTotal /= asteroid.coordinates.length;
+    yTotal /= asteroid.coordinates.length;
+    asteroid.center = {x: xTotal, y: yTotal};
+    asteroid.size = size;  
     
     return asteroid;
-}
-
-function findCenter(array)
-{
-    var centerX = 0;
-    var centerY = 0;
-    
-    for(var index = 0; index < array.length; index++)
-    {
-        centerX += array[index].x;
-        centerY += array[index].y;
-    }
-    
-    centerX /= array.length;
-    centerY /= array.length;
-    
-    return { x: centerX, y: centerY };
 }
 
 function makeLazer(ship)
@@ -529,10 +509,11 @@ function makeLazer(ship)
     var array = new Array();
     var lineWidth = 2;
     var lineColor = "red";
-    var newCenter = findCenter(array);
+    var newCenter;
     
     array.push({ x: ship.coordinates[0].x, y: ship.coordinates[0].y });
     array.push({ x: array[0].x + shipVelocity.x, y: array[0].y + shipVelocity.y });
+    newCenter = {x: (ship.coordinates[0].x + ship.coordinates[1].x) / 2, y: (array[0].y + array[1].y) / 2};
     
     return { coordinates: array, velocity: { x: shipVelocity.x / 2, y: shipVelocity.y / 2 }, center: newCenter, width: lineWidth, color: lineColor };
 }
@@ -543,15 +524,6 @@ function setUpLazer(lazer)
     paintObject(lazer.coordinates, lazer.width, lazer.color);
 }
 
-function isOutOfBounds(array)
-{
-    for(var index = 0; index < array.length; index++)
-        if(pointWithinMap(array[index].x, array[index].y, m_iDistanceFromMap, m_iDistanceFromMap))
-            return false;
-    
-    return true;
-}
-
 function pointWithinMap(x, y, bufferX, bufferY)
 {
     if((x >= -bufferX && x <= m_iMap.width + bufferX) && (y >= -bufferY && y <= m_iMap.height + bufferY))
@@ -560,23 +532,16 @@ function pointWithinMap(x, y, bufferX, bufferY)
     return false;
 }
 
-function insideEachOther(arrayOne, arrayTwo, centerOne, centerTwo)
+function arrayInside(arrayOne, arrayTwo, centerTwo)
 {
     for(var index = 0; index < arrayOne.length; index++)
-        if(insideObject(arrayOne[index], arrayTwo, centerTwo))
+        if(pointInside(arrayOne[index], arrayTwo, centerTwo))
             return true;
-    
-    // If you uncomment this, the collision for the ship will be true all the time
-    // and the shooting a lot of lazers will cause the game to lag, like really bad.
-    // Not sure why ... I know it loops a lot, but still
-//    for(var index = 0; index < arrayTwo.length; index++)
-//        if(insideObject(arrayTwo[index], arrayOne, centerOne))
-//            return true;
     
     return false;
 }
 
-function insideObject(point, array, center)
+function pointInside(point, array, center)
 {
     var howManyTrue = 0;
     var sideEq;

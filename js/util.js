@@ -35,18 +35,6 @@ function getRandomNumber(iMin, iMax)
     return Math.floor((Math.random() * ((iMax + 1) - iMin)) + iMin);
 }
 
-// Removes specified index of the array
-function removeIndex(index, array)
-{
-    var returnArray = new Array();
-    
-    for(var iPos = 0; iPos < array.length; iPos++)
-         if(iPos != index)
-            returnArray.push(array[iPos]);
-    
-    return returnArray;
-}
-
 function cos(angle)
 {
     return Math.cos(angle);
@@ -134,4 +122,9 @@ function getPointDirection(pointBeingCompared, pointComparedTo)
         dirY = 1;
     
     return { x: dirX, y: dirY };
+}
+
+function getDistance(pointA, pointB)
+{
+    return Math.sqrt(Math.pow(pointB.x - pointA.x, 2) + Math.pow(pointB.y - pointA.y, 2));
 }

@@ -13,39 +13,46 @@ function gameLoopSingle()
 {
     clearGameScreen();
     m_Player = setUpShip(m_Player);
+    m_iLazerVar.setUpYet = false;
     
+    // Handles setting up asteroids
     for(var index = 0; index < m_iAsteroidz.length; index++)
     {
-        if(isOutOfBounds(m_iAsteroidz[index].coordinates))
-            m_iAsteroidz[index] = makeAsteroid();
-            
         m_iAsteroidz[index] = setUpAsteroid(m_iAsteroidz[index]);
         
-        if(insideEachOther(m_Player.coordinates, m_iAsteroidz[index].coordinates, m_Player.center, m_iAsteroidz[index].center))
-            m_iAsteroidz = removeIndex(index, m_iAsteroidz);
-    }
-    
-    for(var index = 0; index < m_iLazers.length; index++)
-    {
-        setUpLazer(m_iLazers[index]);
-                
-        if(isOutOfBounds(m_iLazers[index].coordinates))
-            m_iLazers = removeIndex(index, m_iLazers);
+        if(!pointWithinMap(m_iAsteroidz[index].center.x, m_iAsteroidz[index].center.y, m_iAsterVar.distFromMap, m_iAsterVar.distFromMap))
+            m_iAsteroidz[index] = makeAsteroid();
         
-        for(var pos = 0; pos < m_iAsteroidz.length; pos++)
-        {            
-            if(insideEachOther(m_iLazers[index].coordinates, m_iAsteroidz[pos].coordinates, m_iLazers[index].center, m_iAsteroidz[pos].center))
+        if(getDistance(m_Player.center, m_iAsteroidz[index].center) < m_iAsterVar.minDist)
+            if(arrayInside(m_Player.coordinates, m_iAsteroidz[index].coordinates, m_iAsteroidz[index].center))
+                m_iAsteroidz.splice(index, 1);
+        
+        // Handles setting up lazers and checking if the lazer hit the asteroids
+        for(var pos = 0; pos < m_iLazers.length; pos++)
+        {
+            if(!m_iLazerVar.setUpYet)
+                setUpLazer(m_iLazers[pos]);
+                
+            if(!pointWithinMap(m_iLazers[pos].center.x, m_iLazers[pos].center.y, m_iAsterVar.distFromMap, m_iAsterVar.distFromMap))
+                m_iLazers.splice(pos, 1);
+        
+            if(getDistance(m_iLazers[pos].center, m_iAsteroidz[index].center) < m_iAsterVar.minDist)
             {
-                m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[pos].center, m_iAsteroidz[pos].size * (3 / 4)));
-                m_iAsteroidz[pos] = makeAsteroid(m_iAsteroidz[pos].center, m_iAsteroidz[pos].size * (3 / 4));
-                m_iLazers = removeIndex(index, m_iLazers);
+                if(arrayInside(m_iLazers[pos].coordinates, m_iAsteroidz[index].coordinates, m_iLazers[pos].center, m_iAsteroidz[index].center))
+                {
+                    m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[index].center, m_iAsteroidz[index].size * (3 / 4)));
+                    m_iAsteroidz[index] = makeAsteroid(m_iAsteroidz[index].center, m_iAsteroidz[index].size * (3 / 4));
+                    m_iLazers.splice(pos, 1);
+                }
             }
         }
+        
+        m_iLazerVar.setUpYet = true;
     }
     
-    if((m_iAsterData.time += m_iSpeed.game) > m_iAsterData.maxTime)
+    if((m_iAsterVar.time += m_iSpeed.game) > m_iAsterVar.maxTime)
     {
-        m_iAsterData.time = 0;
+        m_iAsterVar.time = 0;
         m_iAsteroidz.push(makeAsteroid());
     }
     
