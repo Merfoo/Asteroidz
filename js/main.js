@@ -6,7 +6,7 @@ var m_Player;
 var m_iAsteroidz;   // Has asteroids position info
 var m_iLazers;  // Has lazers position info
 var m_iLazerVar = { setUpYet: false };
-var m_iAsterVar = { starting: 5, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123};    // Contains variables related to asteroids
+var m_iAsterVar = { starting: 5, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123, count: 5, minSize: 60 };    // Contains variables related to asteroids
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
@@ -392,7 +392,7 @@ function makeAsteroid(newCenter, newSizeMidPoint)
     var yTotal = 0;
     var sizeMidPoint = 60;
     var widthDivider = 200;
-    var size = getRandomNumber(10, 40);
+    var size = getRandomNumber(10, 20);
     var degreeDivider = 1000;   
     var maxDegree = 100;    // Maximum rotation angle the asteroid
     var amountOfPoints = 6;
@@ -464,31 +464,37 @@ function makeAsteroid(newCenter, newSizeMidPoint)
     xTotal += asteroid.coordinates[0].x;
     yTotal += asteroid.coordinates[0].y;
     
-    for(var index = 1; index < amountOfPoints; index++)
+    for(var index = 1; index <= amountOfPoints; index++)
     {
         var distance = getRandomNumber(sizeMidPoint - size, sizeMidPoint + size);
         var point;
         
         if(index <= amountOfPoints / 3)
+        {    
             point = 
             { 
                 x: asteroid.coordinates[index - 1].x + distance, 
                 y: getRandomNumber(asteroid.coordinates[index - 1].y - floor(distance / 2), asteroid.coordinates[index - 1].y + floor(distance * (3 / 4))) 
             };    
+        }    
             
         else if(index > amountOfPoints / 3 && index <= (amountOfPoints / 3) + (amountOfPoints / 3))
+        {        
             point = 
             { 
                 x: getRandomNumber(asteroid.coordinates[index - 1].x - floor(distance * (3 / 4)), asteroid.coordinates[index - 1].x + floor(distance / 2)),
                 y: asteroid.coordinates[index - 1].y + distance 
             };
+         }   
         
         else
+        {    
             point = 
             { 
                 x: asteroid.coordinates[index - 1].x - distance, 
-                y: getRandomNumber(asteroid.coordinates[index - 1].y - floor(distance / 2), asteroid.coordinates[index - 1].y + floor(distance * (3 / 4))) 
+                y: getRandomNumber(asteroid.coordinates[index - 1].y - floor(distance / 3), asteroid.coordinates[index - 1].y + floor(distance * (2 / 3))) 
             };
+        }    
         
         asteroid.coordinates.push(point);
         xTotal += point.x;
@@ -498,7 +504,7 @@ function makeAsteroid(newCenter, newSizeMidPoint)
     xTotal /= asteroid.coordinates.length;
     yTotal /= asteroid.coordinates.length;
     asteroid.center = {x: xTotal, y: yTotal};
-    asteroid.size = size;  
+    asteroid.size = size + sizeMidPoint;  
     
     return asteroid;
 }

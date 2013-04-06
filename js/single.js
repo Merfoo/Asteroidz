@@ -21,11 +21,19 @@ function gameLoopSingle()
         m_iAsteroidz[index] = setUpAsteroid(m_iAsteroidz[index]);
         
         if(!pointWithinMap(m_iAsteroidz[index].center.x, m_iAsteroidz[index].center.y, m_iAsterVar.distFromMap, m_iAsterVar.distFromMap))
-            m_iAsteroidz[index] = makeAsteroid();
+        {    
+            if(m_iAsteroidz.length <= m_iAsterVar.count)
+                m_iAsteroidz[index] = makeAsteroid();
+            
+            else
+                m_iAsteroidz.splice(index, 1);
+        }
         
         if(getDistance(m_Player.center, m_iAsteroidz[index].center) < m_iAsterVar.minDist)
+        {
             if(arrayInside(m_Player.coordinates, m_iAsteroidz[index].coordinates, m_iAsteroidz[index].center))
                 m_iAsteroidz.splice(index, 1);
+        }
         
         // Handles setting up lazers and checking if the lazer hit the asteroids
         for(var pos = 0; pos < m_iLazers.length; pos++)
@@ -40,23 +48,36 @@ function gameLoopSingle()
             {
                 if(arrayInside(m_iLazers[pos].coordinates, m_iAsteroidz[index].coordinates, m_iLazers[pos].center, m_iAsteroidz[index].center))
                 {
-                    m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[index].center, m_iAsteroidz[index].size * (3 / 4)));
-                    m_iAsteroidz[index] = makeAsteroid(m_iAsteroidz[index].center, m_iAsteroidz[index].size * (3 / 4));
                     m_iLazers.splice(pos, 1);
+                    
+                    if(m_iAsteroidz[index].size >= m_iAsterVar.minSize)
+                    {
+                        for(var maker = 0; maker < getRandomNumber(1, 4); maker++)
+                            m_iAsteroidz.push(makeAsteroid(m_iAsteroidz[index].center, m_iAsteroidz[index].size / 4));
+                        
+                        m_iAsteroidz[index] = makeAsteroid(m_iAsteroidz[index].center, m_iAsteroidz[index].size / 4);
+                    }
+                    
+                    else
+                        m_iAsteroidz.splice(index, 1);
                 }
             }
         }
         
         m_iLazerVar.setUpYet = true;
+        console.log(m_iAsteroidz[index].size);
     }
     
     if((m_iAsterVar.time += m_iSpeed.game) > m_iAsterVar.maxTime)
     {
         m_iAsterVar.time = 0;
-        m_iAsteroidz.push(makeAsteroid());
+        
+        if(m_iAsteroidz.length <= m_iAsterVar.count)
+        {
+            m_iAsterVar.count++;
+            m_iAsteroidz.push(makeAsteroid());
+        }
     }
-    
-    console.log(m_iLazers.length);
 }
 
 // Stops loop
