@@ -12,6 +12,7 @@ function initializeSingle()
 function gameLoopSingle() 
 {
     clearGameScreen();
+    m_iTime.current += m_iSpeed.game;
     m_Player = setUpShip(m_Player);
     m_iLazerVar.setUpYet = false;
     
@@ -32,7 +33,7 @@ function gameLoopSingle()
         if(getDistance(m_Player.center, m_iAsteroidz[index].center) < m_iAsterVar.minDist)
         {
             if(arrayInside(m_Player.coordinates, m_iAsteroidz[index].coordinates, m_iAsteroidz[index].center))
-                m_iAsteroidz.splice(index, 1);
+                m_iAsteroidz.splice(index, 1);//endGameSingle();
         }
         
         // Handles setting up lazers and checking if the lazer hit the asteroids
@@ -65,7 +66,6 @@ function gameLoopSingle()
         }
         
         m_iLazerVar.setUpYet = true;
-        console.log(m_iAsteroidz[index].size);
     }
     
     if((m_iAsterVar.time += m_iSpeed.game) > m_iAsterVar.maxTime)
@@ -78,6 +78,8 @@ function gameLoopSingle()
             m_iAsteroidz.push(makeAsteroid());
         }
     }
+    
+    writeMessage(m_iMessageAlignment.left, "Time: " + Math.round(m_iTime.current / 10) / 100, m_iTime.color);
 }
 
 // Stops loop
@@ -93,6 +95,20 @@ function unPauseGameSingle()
     showPausePic(false);
     m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
 }
+
+//function endGameSingle()
+//{
+//    pauseGameSingle();
+//    showPausePic(false);
+//    
+//    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 10000  + 'pt Calibri';
+//    m_CanvasMain.fillStyle = "white";
+//    m_CanvasMain.fillText("You Lost!!!", m_iMap.width / 3, m_iMap.height / 2);
+//    
+//    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 10000  + 'pt Calibri';
+//    m_CanvasMain.fillStyle = "white";
+//    m_CanvasMain.fillText("To Play again press the esc", m_iMap.width / 3, m_iMap.height / 2);
+//}
 
 // Handle keyboard events for multiplayer
 function keyBoardDownSingle(event)

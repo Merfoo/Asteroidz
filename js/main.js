@@ -7,6 +7,7 @@ var m_iAsteroidz;   // Has asteroids position info
 var m_iLazers;  // Has lazers position info
 var m_iLazerVar = { setUpYet: false };
 var m_iAsterVar = { starting: 5, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123, count: 5, minSize: 60 };    // Contains variables related to asteroids
+var m_iTime = { current: 0, highest: 0, color: "white" };
 var m_iSpeed = { gameOriginal: 33, game: 33 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
@@ -144,7 +145,7 @@ function showPausePic(bVisible)
 // Writes message to corresponding tile, with specified colour
 function writeMessage(startTile, message, color)
 {
-    m_CanvasMain.font = (m_iMap.toolbarThickness - 10)  + 'pt Calibri';
+    m_CanvasMain.font = (m_iMap.toolbarThickness - 5)  + 'pt Calibri';
     m_CanvasMain.fillStyle = color;
     m_CanvasMain.fillText(message, startTile, m_iMap.toolbarThickness - 5);
 }
