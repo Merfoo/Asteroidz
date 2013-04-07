@@ -77,7 +77,6 @@ function gameLoopSingle()
             m_iAsteroidz.push(makeAsteroid());
     }
     
-    console.log(m_iAsterVar.count + " - " + m_iAsteroidz.length);
     writeMessage(m_iMessageAlignment.left, "Time: " + Math.round(m_iTime.current / 10) / 100, m_iTime.color);
 }
 
@@ -101,12 +100,15 @@ function endGameSingle()
     showPausePic(false);
     m_bGameStatus.lost = true;
     
-    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 10000  + 'pt Calibri';
     m_CanvasMain.fillStyle = "white";
+    
+    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 10000  + 'pt Calibri';
     m_CanvasMain.fillText("You Lost!!!", m_iMap.width / 3, m_iMap.height / 2);
     
     m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 50000  + 'pt Calibri';
-    m_CanvasMain.fillStyle = "white";
+    m_CanvasMain.fillText("You lasted: " + m_iTime.current / 1000 + " seconds", m_iMap.width / 3, m_iMap.height / 5 * 3);
+    
+    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 50000  + 'pt Calibri';
     m_CanvasMain.fillText("To Play again press the esc", m_iMap.width / 3, m_iMap.height / 4 * 3);
 }
 
