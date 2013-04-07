@@ -7,7 +7,7 @@ var m_iStars;
 var m_iAsteroidz;   // Has asteroids position info
 var m_iLazers;  // Has lazers position info
 var m_iLazerVar = { setUpYet: false };
-var m_iAsterVar = { starting: 5, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123, count: 5, minSize: 60 };    // Contains variables related to asteroids
+var m_iAsterVar = { starting: 7, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123, count: 10, minSize: 60 };    // Contains variables related to asteroids
 var m_iTime = { current: 0, highest: 0, color: "white" };
 var m_iSpeed = { gameOriginal: 33, game: 33, stars: 50 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
@@ -18,8 +18,8 @@ var m_IntervalId = { game: null, stars: null};
 var m_bGameStatus = { started: false, paused: false, single: false, lost: false };
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65 };
 
-window.addEventListener('keydown', doKeyDown, true);
-window.addEventListener('keyup', doKeyUp, true);
+window.addEventListener('keydown', keyboardEvent, true);
+window.addEventListener('keyup', keyboardEvent, true);
 document.addEventListener("DOMContentLoaded", initializeGame, false);
 document.documentElement.style.overflowX = 'hidden';	 // Horizontal scrollbar will be hidden
 document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar will be hidden
@@ -151,13 +151,15 @@ function writeMessage(startTile, message, color)
 // Resets the status's about the game
 function resetGame()
 {
-    window.clearInterval(m_IntervalId.game);
+    clearInterval(m_IntervalId.game);
+    clearInterval(m_IntervalId.stars);
     m_bGameStatus.started = false;
     m_bGameStatus.isPaused = false;
     m_bGameStatus.single = false;
     m_bGameStatus.lost = false;
     m_iScores.one = 0;
     m_iScores.highest = 0;
+    m_iAsterVar.count = m_iAsterVar.starting;
     m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
     m_iLazers = new Array();
     initializeStars();
@@ -165,29 +167,15 @@ function resetGame()
     showPausePic(false);
 }
 
-// Handles the key down
-function doKeyDown(event) 
+function keyboardEvent(event)
 {
-    if (m_bGameStatus.started && !m_bGameStatus.isPaused)
-        if(m_bGameStatus.single)
-            keyBoardDownSingle(event);
+    if(event.type == "keyup")
+        if(event.keyCode == m_iKeyId.esc)
+            showStartMenu(true);
     
-    if(event.keyCode == m_iKeyId.space || event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown)
-    {
-        event.preventDefault();
-        return false;
-    }
-}
-
-// Handles key up events
-function doKeyUp(event)
-{
-    if(event.keyCode == m_iKeyId.esc)
-        showStartMenu(true);
-        
-    else if (m_bGameStatus.started)
+    if (m_bGameStatus.started)
         if(m_bGameStatus.single)
-            keyBoardUpSingle(event);
+            keyBoardEventSingle(event);
     
     if(event.keyCode == m_iKeyId.space || event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown)
     {

@@ -71,14 +71,13 @@ function gameLoopSingle()
     if((m_iAsterVar.time += m_iSpeed.game) > m_iAsterVar.maxTime)
     {
         m_iAsterVar.time = 0;
+        m_iAsterVar.count++;
         
-        if(m_iAsteroidz.length <= m_iAsterVar.count)
-        {
-            m_iAsterVar.count++;
+        for(var index = 0; index < m_iAsterVar.count - m_iAsteroidz.length; index++)
             m_iAsteroidz.push(makeAsteroid());
-        }
     }
     
+    console.log(m_iAsterVar.count + " - " + m_iAsteroidz.length);
     writeMessage(m_iMessageAlignment.left, "Time: " + Math.round(m_iTime.current / 10) / 100, m_iTime.color);
 }
 
@@ -111,39 +110,48 @@ function endGameSingle()
     m_CanvasMain.fillText("To Play again press the esc", m_iMap.width / 3, m_iMap.height / 4 * 3);
 }
 
-// Handle keyboard events for multiplayer
-function keyBoardDownSingle(event)
+// Handle keyboard events for single player
+function keyBoardEventSingle(event)
 {
-    if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
-        m_Player.up = true;
+    if(event.type == "keydown")
+    { 
+        if(!m_bGameStatus.paused)
+        {    
+            if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
+                m_Player.up = true;
 
-    else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
-        m_Player.down = true;
-    
-    else if(event.keyCode == m_iKeyId.arrowRight)   // Right arrow key was pressed
-        m_Player.right = true;
-    
-    else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
-        m_Player.left = true;
-}
+            else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
+                m_Player.down = true;
 
-function keyBoardUpSingle(event)
-{
-    if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
-        m_Player.up = false;
+            else if(event.keyCode == m_iKeyId.arrowRight)   // Right arrow key was pressed
+                m_Player.right = true;
 
-    else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
-        m_Player.down = false;
+            else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
+                m_Player.left = true;
+         }   
+    }
     
-    else if(event.keyCode == m_iKeyId.arrowRight)   // Right arrow key was pressed
-        m_Player.right = false;
-    
-    else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
-        m_Player.left = false;
+    if(event.type == "keyup")
+    {
+        if(!m_bGameStatus.paused)
+        {
+            if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
+                m_Player.up = false;
 
-    if (event.keyCode == m_iKeyId.a)    // A was pressed
-        m_iLazers.push(makeLazer(m_Player));
-        
-    if (event.keyCode == m_iKeyId.space && !m_bGameStatus.lost)    // Space bar was pressed
-        m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle();
+            else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
+                m_Player.down = false;
+
+            else if(event.keyCode == m_iKeyId.arrowRight)   // Right arrow key was pressed
+                m_Player.right = false;
+
+            else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
+                m_Player.left = false;
+
+            if (event.keyCode == m_iKeyId.a)    // A was pressed
+                m_iLazers.push(makeLazer(m_Player));
+        }
+
+        if (event.keyCode == m_iKeyId.space && !m_bGameStatus.lost)    // Space bar was pressed
+            m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle();
+    }
 }
