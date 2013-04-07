@@ -160,6 +160,7 @@ function resetGame()
     m_iScores.one = 0;
     m_iScores.highest = 0;
     m_iAsterVar.count = m_iAsterVar.starting;
+    m_iTime.current = 0;
     m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
     m_iLazers = new Array();
     initializeStars();
