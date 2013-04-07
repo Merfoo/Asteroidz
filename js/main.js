@@ -1,20 +1,18 @@
 // This file conatins all variables used with different variations of the game, and some useful functions
 
-// Contains map width, map height, color and toolbar thickness
 var m_iMap;
 var m_Player;
 var m_iStars;
-var m_iAsteroidz;   // Has asteroids position info
-var m_iLazers;  // Has lazers position info
-var m_iLazerVar = { setUpYet: false };
-var m_iAsterVar = { starting: 7, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123, count: 10, minSize: 60 };    // Contains variables related to asteroids
-var m_iTime = { current: 0, highest: 0, color: "white" };
-var m_iSpeed = { gameOriginal: 33, game: 33, stars: 50 };
-var m_iScores = { one: 0, highest: 0, color: "white"};
-var m_iMessageAlignment;
+var m_iAsteroidz;   
+var m_iLazers;  
+var m_iTime = { current: 0, color: "white" };
+var m_iSpeed = { game: 33, stars: 50 };
+var m_iScores = { one: 0, color: "white"};
+var m_iFontSize;
+var m_iTextAlign;
 var m_CanvasMain;
 var m_CanvasBackground;
-var m_IntervalId = { game: null, stars: null};
+var m_IntervalId = { game: null, startMenu: null};
 var m_bGameStatus = { started: false, paused: false, single: false, lost: false };
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65 };
 
@@ -50,15 +48,24 @@ function initializeCanvas()
         height: window.innerHeight, 
         width: window.innerWidth,
         toolbarThickness: floor(window.innerHeight / 25),
-        toolbarColor: "black",
         backgroundColor: "black"
     };
     
-    m_iMessageAlignment = 
+    m_iTextAlign = 
     {
-        left: 5,
-        middle: floor(m_iMap.width / 2),
-        right: floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
+        left: floor(m_iMap.width / 200),
+        center: floor(m_iMap.width / 3),
+        right: floor((m_iMap.width / 2) + (m_iMap.width / 2) / 4 * 3),
+        top: floor(m_iMap.height / 30),
+        middle: floor(m_iMap.height / 3),
+        bottom: floor((m_iMap.height / 2) + (m_iMap.height / 2) / 4 * 3)
+    };
+    
+    m_iFontSize = 
+    {
+        big: floor(m_iMap.height / 10),
+        medium: floor(m_iMap.height / 33),
+        small: floor(m_iMap.height / 50)
     };
     
     m_CanvasBackground.canvas.width = m_CanvasMain.canvas.width = m_iMap.width -= floor(m_iMap.width / 75); 
@@ -73,10 +80,32 @@ function clearGameScreen()
 // Initialize the astroidz array with 10
 function initializeAsteroidz()
 {
-    m_iAsteroidz = new Array();
+    m_iAsteroidz = 
+    {
+        asteroid: new Array(),
+        starting: 7,
+        time: 0,
+        maxTime: 2500,
+        distFromMap: 250,
+        minDist: 123,
+        count: 7,
+        minSize: 60
+    };
     
-    for(var index = 0; index < m_iAsterVar.starting; index++)
-        m_iAsteroidz.push(makeAsteroid());
+    for(var index = 0; index < m_iAsteroidz.starting; index++)
+        m_iAsteroidz.asteroid.push(makeAsteroid());
+}
+
+// Initialize Lazer object
+function initializeLazers()
+{
+    m_iLazers = 
+    {
+        lazer: new Array(),
+        setUpYet: false,
+        time: 0,
+        maxWait: 800
+    };
 }
 
 // Shows start menu, based on argument.
@@ -87,13 +116,13 @@ function showStartMenu(bVisible)
         resetGame();
         clearGameScreen();
         document.getElementById("startMenu").style.zIndex = 2; 
-        clearInterval(m_IntervalId.stars);
-        m_IntervalId.stars = setInterval("showStars()", m_iSpeed.stars);
+        clearInterval(m_IntervalId.startMenu);
+        m_IntervalId.startMenu = setInterval("drawStartMenu()", m_iSpeed.stars);
     }
 
     else
     {
-        clearInterval(m_IntervalId.stars);
+        clearInterval(m_IntervalId.startMenu);
         document.getElementById("startMenu").style.zIndex = -2;
     }
 }
@@ -141,31 +170,28 @@ function showPausePic(bVisible)
 }
 
 // Writes message to corresponding tile, with specified colour
-function writeMessage(startTile, message, color)
+function writeMessage(x, y, font, message, color)
 {
-    m_CanvasMain.font = (m_iMap.toolbarThickness - 5)  + 'pt Calibri';
+    m_CanvasMain.font = font  + 'pt Calibri';
     m_CanvasMain.fillStyle = color;
-    m_CanvasMain.fillText(message, startTile, m_iMap.toolbarThickness - 5);
+    m_CanvasMain.fillText(message, x, y);
 }
 
 // Resets the status's about the game
 function resetGame()
 {
     clearInterval(m_IntervalId.game);
-    clearInterval(m_IntervalId.stars);
+    clearInterval(m_IntervalId.startMenu);
+    initializeStars();
+    initializeAsteroidz();
+    initializeLazers();
+    showPausePic(false);
     m_bGameStatus.started = false;
     m_bGameStatus.isPaused = false;
     m_bGameStatus.single = false;
     m_bGameStatus.lost = false;
     m_iScores.one = 0;
-    m_iScores.highest = 0;
-    m_iAsterVar.count = m_iAsterVar.starting;
     m_iTime.current = 0;
-    m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
-    m_iLazers = new Array();
-    initializeStars();
-    initializeAsteroidz();
-    showPausePic(false);
 }
 
 function keyboardEvent(event)
@@ -420,13 +446,13 @@ function makeAsteroid(newCenter, newSizeMidPoint)
             
             if(position == 1)   // Left
             {
-                center.x = getRandomNumber(-m_iAsterVar.distFromMap, -m_iAsterVar.distFromMap / 2); 
+                center.x = getRandomNumber(-m_iAsteroidz.distFromMap, -m_iAsteroidz.distFromMap / 2); 
                 asteroid.velocity.x = getRandomNumber(1, floor(m_iMap.width / widthDivider));
             }
             
             else if(position == 3)  // Right
             {
-                center.x = getRandomNumber((m_iAsterVar.distFromMap / 2) + m_iMap.width, m_iAsterVar.distFromMap + m_iMap.width);
+                center.x = getRandomNumber((m_iAsteroidz.distFromMap / 2) + m_iMap.width, m_iAsteroidz.distFromMap + m_iMap.width);
                 asteroid.velocity.x = getRandomNumber(-floor(m_iMap.width / widthDivider), 1);
             }
         }
@@ -438,13 +464,13 @@ function makeAsteroid(newCenter, newSizeMidPoint)
             
             if(position == 2)   // Above
             {
-                center.y = getRandomNumber(-m_iAsterVar.distFromMap, -m_iAsterVar.distFromMap / 2);
+                center.y = getRandomNumber(-m_iAsteroidz.distFromMap, -m_iAsteroidz.distFromMap / 2);
                 asteroid.velocity.y = getRandomNumber(1, floor(m_iMap.width / widthDivider));
             }
             
             else if(position == 4)  // Below
             {
-                center.y = getRandomNumber((m_iAsterVar.distFromMap / 2) + m_iMap.height, m_iMap.height + m_iAsterVar.distFromMap);
+                center.y = getRandomNumber((m_iAsteroidz.distFromMap / 2) + m_iMap.height, m_iMap.height + m_iAsteroidz.distFromMap);
                 asteroid.velocity.y = getRandomNumber(-floor(m_iMap.width / widthDivider), 1);
             }
         }
@@ -591,10 +617,14 @@ function makeStar()
     return star;
 }
 
-function showStars()
+function drawStartMenu()
 {
     clearGameScreen();
-    
+    showStars();
+}
+
+function showStars()
+{
     for(var index = 0; index  < m_iStars.star.length; index++)
     {
         var gradient = m_CanvasMain.createRadialGradient(m_iStars.star[index].x, m_iStars.star[index].y, 1, m_iStars.star[index].x, m_iStars.star[index].y, m_iStars.star[index].r);
