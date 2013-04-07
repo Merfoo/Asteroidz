@@ -3,18 +3,19 @@
 // Contains map width, map height, color and toolbar thickness
 var m_iMap;
 var m_Player;
+var m_iStars;
 var m_iAsteroidz;   // Has asteroids position info
 var m_iLazers;  // Has lazers position info
 var m_iLazerVar = { setUpYet: false };
 var m_iAsterVar = { starting: 5, time: 0, maxTime: 5000, distFromMap: 250, minDist: 123, count: 5, minSize: 60 };    // Contains variables related to asteroids
 var m_iTime = { current: 0, highest: 0, color: "white" };
-var m_iSpeed = { gameOriginal: 33, game: 33 };
+var m_iSpeed = { gameOriginal: 33, game: 33, stars: 50 };
 var m_iScores = { one: 0, highest: 0, color: "white"};
 var m_iMessageAlignment;
 var m_CanvasMain;
 var m_CanvasBackground;
-var m_IntervalId = { game: null};
-var m_bGameStatus = { started: false, paused: false, single: false };
+var m_IntervalId = { game: null, stars: null};
+var m_bGameStatus = { started: false, paused: false, single: false, lost: false };
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65 };
 
 window.addEventListener('keydown', doKeyDown, true);
@@ -26,7 +27,7 @@ document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar w
 // Initialize canvas
 function initializeGame()
 {
-    initializeCanvas(); 
+    initializeCanvas();
     paintBackground();
     showStartMenu(true);
 }
@@ -85,11 +86,14 @@ function showStartMenu(bVisible)
     {
         resetGame();
         clearGameScreen();
-        document.getElementById("startMenu").style.zIndex = 2;        
+        document.getElementById("startMenu").style.zIndex = 2; 
+        clearInterval(m_IntervalId.stars);
+        m_IntervalId.stars = setInterval("showStars()", m_iSpeed.stars);
     }
 
     else
     {
+        clearInterval(m_IntervalId.stars);
         document.getElementById("startMenu").style.zIndex = -2;
     }
 }
@@ -110,24 +114,18 @@ function paintObject(array, width, color)
 }
 
 // Paints a rectangle by pixels
-function paintTile(startX, startY, width, height, color)
+function paintTileBackground(startX, startY, width, height, color)
 {
-    m_CanvasMain.fillStyle = color;
-    m_CanvasMain.fillRect(startX, startY, width, height);
+    m_CanvasBackground.fillStyle = color;
+    m_CanvasBackground.fillRect(startX, startY, width, height);
 }
 
 function paintBackground()
 {
-    m_CanvasBackground.fillStyle = m_iMap.backgroundColor;
-    m_CanvasBackground.fillRect(0, 0, m_iMap.width, m_iMap.height);
-    m_CanvasBackground.fillStyle = m_iMap.toolbarColor;
-    m_CanvasBackground.fillRect(0, 0, m_iMap.width, m_iMap.toolbarThickness);
+    paintTileBackground(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
 
     for(var index = 0; index < floor((m_iMap.width * m_iMap.height) / 500); index++)
-    {
-        m_CanvasBackground.fillStyle = getRandomColor(1, 255);
-        m_CanvasBackground.fillRect(getRandomNumber(0, m_iMap.width), getRandomNumber(0, m_iMap.height), 1, 1);
-    }
+        paintTileBackground(getRandomNumber(0, m_iMap.width), getRandomNumber(0, m_iMap.height), 1, 1, getRandomColor(1, 255));
 }
 
 // Shows pause pause if true, otherwise hides it.
@@ -157,10 +155,12 @@ function resetGame()
     m_bGameStatus.started = false;
     m_bGameStatus.isPaused = false;
     m_bGameStatus.single = false;
+    m_bGameStatus.lost = false;
     m_iScores.one = 0;
     m_iScores.highest = 0;
     m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
     m_iLazers = new Array();
+    initializeStars();
     initializeAsteroidz();
     showPausePic(false);
 }
@@ -573,4 +573,54 @@ function pointInside(point, array, center)
         return false;
     
     return true;
+}
+
+function initializeStars()
+{
+    m_iStars = 
+    {
+        star: new Array,
+        initialized: false,
+        starting: 50
+    };
+    
+    for(var index = 0; index < m_iStars.starting; index++)
+        m_iStars.star.push(makeStar());
+}
+
+function makeStar()
+{
+    var star = 
+    {
+        x: getRandomNumber(0, m_iMap.width),
+        y: getRandomNumber(0, m_iMap.height),
+        r: getRandomNumber(floor(m_iMap.width / 333), floor(m_iMap.width / 330)),
+        currentStop: .0,
+        stopIncrease: getRandomNumber(1, 10) / 250
+    };
+    
+    return star;
+}
+
+function showStars()
+{
+    clearGameScreen();
+    
+    for(var index = 0; index  < m_iStars.star.length; index++)
+    {
+        var gradient = m_CanvasMain.createRadialGradient(m_iStars.star[index].x, m_iStars.star[index].y, 1, m_iStars.star[index].x, m_iStars.star[index].y, m_iStars.star[index].r);
+        gradient.addColorStop(0, getRandomColor(1, 255));
+        gradient.addColorStop(m_iStars.star[index].currentStop, m_iMap.backgroundColor);
+        m_CanvasMain.fillStyle = gradient;
+        m_CanvasMain.fillRect(m_iStars.star[index].x - m_iStars.star[index].r, m_iStars.star[index].y - m_iStars.star[index].r, m_iStars.star[index].r * 2, m_iStars.star[index].r * 2);
+
+        if((m_iStars.star[index].currentStop += m_iStars.star[index].stopIncrease) >= 1)
+        {
+            m_iStars.star[index].stopIncrease = -m_iStars.star[index].stopIncrease;
+            m_iStars.star[index].currentStop = .99;
+        }
+        
+        if(m_iStars.star[index].currentStop <= 0)
+            m_iStars.star[index] = makeStar();   
+    }
 }

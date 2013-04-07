@@ -33,7 +33,7 @@ function gameLoopSingle()
         if(getDistance(m_Player.center, m_iAsteroidz[index].center) < m_iAsterVar.minDist)
         {
             if(arrayInside(m_Player.coordinates, m_iAsteroidz[index].coordinates, m_iAsteroidz[index].center))
-                m_iAsteroidz.splice(index, 1);//endGameSingle();
+                endGameSingle();
         }
         
         // Handles setting up lazers and checking if the lazer hit the asteroids
@@ -96,19 +96,20 @@ function unPauseGameSingle()
     m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
 }
 
-//function endGameSingle()
-//{
-//    pauseGameSingle();
-//    showPausePic(false);
-//    
-//    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 10000  + 'pt Calibri';
-//    m_CanvasMain.fillStyle = "white";
-//    m_CanvasMain.fillText("You Lost!!!", m_iMap.width / 3, m_iMap.height / 2);
-//    
-//    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 10000  + 'pt Calibri';
-//    m_CanvasMain.fillStyle = "white";
-//    m_CanvasMain.fillText("To Play again press the esc", m_iMap.width / 3, m_iMap.height / 2);
-//}
+function endGameSingle()
+{
+    pauseGameSingle();
+    showPausePic(false);
+    m_bGameStatus.lost = true;
+    
+    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 10000  + 'pt Calibri';
+    m_CanvasMain.fillStyle = "white";
+    m_CanvasMain.fillText("You Lost!!!", m_iMap.width / 3, m_iMap.height / 2);
+    
+    m_CanvasMain.font = (m_iMap.width * m_iMap.height) / 50000  + 'pt Calibri';
+    m_CanvasMain.fillStyle = "white";
+    m_CanvasMain.fillText("To Play again press the esc", m_iMap.width / 3, m_iMap.height / 4 * 3);
+}
 
 // Handle keyboard events for multiplayer
 function keyBoardDownSingle(event)
@@ -143,6 +144,6 @@ function keyBoardUpSingle(event)
     if (event.keyCode == m_iKeyId.a)    // A was pressed
         m_iLazers.push(makeLazer(m_Player));
         
-    if (event.keyCode == m_iKeyId.space)    // Space bar was pressed
+    if (event.keyCode == m_iKeyId.space && !m_bGameStatus.lost)    // Space bar was pressed
         m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle();
 }
