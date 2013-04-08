@@ -13,7 +13,7 @@ function initializeSingle()
 function gameLoopSingle() 
 {
     clearGameScreen();
-    m_iTime.current += m_iSpeed.game;
+    m_iTime.current = round(m_iTime.current += m_iSpeed.game / 1000, 2);
     m_iLazers.time += m_iSpeed.game;
     m_iLazers.setUpYet = false;
     showStars();
@@ -48,9 +48,11 @@ function gameLoopSingle()
         // Handles setting up lazers and checking if the lazer hit the asteroids
         for(var pos = 0; pos < m_iLazers.lazer.length; pos++)
         {
+            // Sets up lazers if it hasn't yet
             if(!m_iLazers.setUpYet)
                 setUpLazer(m_iLazers.lazer[pos]);
-                
+              
+            // Removes the lazer if it has gone outside the map
             if(!pointWithinMap(m_iLazers.lazer[pos].center.x, m_iLazers.lazer[pos].center.y, m_iAsteroidz.distFromMap, m_iAsteroidz.distFromMap))
             {
                 m_iLazers.lazer.splice(pos, 1);
@@ -63,14 +65,17 @@ function gameLoopSingle()
                 {
                     m_iLazers.lazer.splice(pos, 1);
                     
+                    // If the asteroid is big enough, spawn more
                     if(m_iAsteroidz.asteroid[index].size >= m_iAsteroidz.minSize)
                     {
                         for(var maker = 0; maker < getRandomNumber(1, 4); maker++)
                             m_iAsteroidz.asteroid.push(makeAsteroid(m_iAsteroidz.asteroid[index].center, m_iAsteroidz.asteroid[index].size / 4));
                         
                         m_iAsteroidz.asteroid[index] = makeAsteroid(m_iAsteroidz.asteroid[index].center, m_iAsteroidz.asteroid[index].size / 4);
+                        m_iScores.one += m_iAsteroidz.pointPer;
                     }
                     
+                    // If ths asteroid is too small, remove it
                     else
                     {
                         m_iAsteroidz.asteroid.splice(index, 1);
@@ -92,7 +97,7 @@ function gameLoopSingle()
             m_iAsteroidz.push(makeAsteroid());
     }
     
-    writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium,  "Time: " + Math.round(m_iTime.current / 10) / 100, m_iTime.color);
+    writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium,  "Time: " + m_iTime.current, m_iTime.color);
 }
 
 // Stops loop
@@ -114,8 +119,11 @@ function endGameSingle()
     pauseGameSingle();
     showPausePic(false);
     m_bGameStatus.lost = true;
+    m_iScores.list.push(m_iScores.one = round(m_iScores.one * m_iTime.current + m_iTime.current, 0));
+    m_iScores.list = order(m_iScores.list, true);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle, m_iFontSize.big, "You Lost!!!", m_iScores.color);
-    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 75, m_iFontSize.small, "You lasted: " + m_iTime.current / 1000 + " seconds", m_iScores.color);
+    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 75, m_iFontSize.small, "Time Survived: " + m_iTime.current, m_iScores.color);
+    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 100, m_iFontSize.small, "Score: " + m_iScores.one + ",  Highest: " + m_iScores.list[0], m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 150, m_iFontSize.small, "To Play again press the esc", m_iScores.color);
 }
 

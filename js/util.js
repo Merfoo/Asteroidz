@@ -53,6 +53,11 @@ function rotatePoint(x, y, ang, cornerX, cornerY)
     return { x: newX, y: newY };
 }
 
+function round(number, places)
+{
+    return Math.round(number * Math.pow(10, places)) / Math.pow(10, places);
+}
+
 function floor(number)
 {
     return Math.floor(number);
@@ -127,4 +132,24 @@ function getPointDirection(pointBeingCompared, pointComparedTo)
 function getDistance(pointA, pointB)
 {
     return Math.sqrt(Math.pow(pointB.x - pointA.x, 2) + Math.pow(pointB.y - pointA.y, 2));
+}
+
+function order(array, highFirst)
+{
+    var temp;
+    
+    for(var loop = 0; loop < array.length; loop++)
+    {
+        for(var index = 0; index < array.length - 1; index++)
+        {
+            if((highFirst && array[index] < array[index + 1]) || (!highFirst && array[index] > array[index + 1]))
+            {
+                temp = array[index];
+                array[index] = array[index + 1];
+                array[index + 1] = temp;
+            }
+        }
+    }
+    
+    return array;
 }
