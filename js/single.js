@@ -27,10 +27,16 @@ function gameLoopSingle()
         if(!pointWithinMap(m_iAsteroidz.asteroid[index].center.x, m_iAsteroidz.asteroid[index].center.y, m_iAsteroidz.distFromMap, m_iAsteroidz.distFromMap))
         {    
             if(m_iAsteroidz.asteroid.length <= m_iAsteroidz.count)
+            {
                 m_iAsteroidz.asteroid[index] = makeAsteroid();
+                continue;
+            }
             
             else
+            {
                 m_iAsteroidz.asteroid.splice(index, 1);
+                continue;
+            }
         }
         
         if(getDistance(m_Player.center, m_iAsteroidz.asteroid[index].center) < m_iAsteroidz.minDist)
@@ -46,7 +52,10 @@ function gameLoopSingle()
                 setUpLazer(m_iLazers.lazer[pos]);
                 
             if(!pointWithinMap(m_iLazers.lazer[pos].center.x, m_iLazers.lazer[pos].center.y, m_iAsteroidz.distFromMap, m_iAsteroidz.distFromMap))
+            {
                 m_iLazers.lazer.splice(pos, 1);
+                continue;
+            }
         
             if(getDistance(m_iLazers.lazer[pos].center, m_iAsteroidz.asteroid[index].center) < m_iAsteroidz.minDist)
             {
@@ -63,7 +72,10 @@ function gameLoopSingle()
                     }
                     
                     else
+                    {
                         m_iAsteroidz.asteroid.splice(index, 1);
+                        continue;
+                    }
                 }
             }
         }
@@ -148,6 +160,7 @@ function keyBoardEventSingle(event)
             {
                 if(m_iLazers.time >= m_iLazers.maxWait)
                 {
+                    playLazer();
                     m_iLazers.lazer.push(makeLazer(m_Player));
                     m_iLazers.time = 0;
                 }
