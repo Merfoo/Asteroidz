@@ -72,12 +72,12 @@ function gameLoopSingle()
                             m_iAsteroidz.asteroids.push(makeAsteroid(m_iAsteroidz.asteroids[index].center, m_iAsteroidz.asteroids[index].size / 4));
                         
                         m_iAsteroidz.asteroids[index] = makeAsteroid(m_iAsteroidz.asteroids[index].center, m_iAsteroidz.asteroids[index].size / 4);
-                        m_iScores.one += m_iAsteroidz.pointPer;
                     }
                     
                     // If ths asteroid is too small, remove it
                     else
                     {
+                        m_iScores.one += m_iAsteroidz.pointPer;
                         m_iAsteroidz.asteroids.splice(index, 1);
                         continue;
                     }
@@ -97,7 +97,8 @@ function gameLoopSingle()
             m_iAsteroidz.asteroids.push(makeAsteroid());
     }
     
-    writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium,  "Time: " + m_iTime.current, m_iTime.color);
+    writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium, "Time: " + m_iTime.current, m_iTime.color);
+    writeMessage(m_iTextAlign.left + 333, m_iTextAlign.top, m_iFontSize.medium, "Score: " + m_iScores.one, m_iTime.color);
 }
 
 // Stops loop
@@ -119,7 +120,7 @@ function endGameSingle()
     pauseGameSingle();
     showPausePic(false);
     m_bGameStatus.lost = true;
-    m_iScores.list.push(m_iScores.one = round(m_iScores.one * m_iTime.current + m_iTime.current, 0));
+    m_iScores.list.push(m_iScores.one = floor(m_iScores.one + m_iTime.current * m_iTime.multiplyer));
     m_iScores.list = order(m_iScores.list, true);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle, m_iFontSize.big, "You Lost!!!", m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 75, m_iFontSize.small, "Time Survived: " + m_iTime.current, m_iScores.color);

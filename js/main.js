@@ -5,7 +5,7 @@ var m_Player;
 var m_iStars;
 var m_iAsteroidz;   
 var m_iLazers;  
-var m_iTime = { current: 0, color: "white" };
+var m_iTime = { current: 0, color: "white", multiplyer: 10 };
 var m_iSpeed = { game: 33, stars: 50 };
 var m_iScores = { one: 0, color: "white", list: new Array()};
 var m_iFontSize;
@@ -92,7 +92,7 @@ function initializeAsteroidz()
         minDist: 123,
         count: 7,
         minSize: 60,
-        pointPer: 50
+        pointPer: 75
     };
     
     for(var index = 0; index < m_iAsteroidz.starting; index++)
