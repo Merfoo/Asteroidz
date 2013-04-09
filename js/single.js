@@ -43,7 +43,7 @@ function gameLoopSingle()
         if(getDistance(m_Player.center, m_iAsteroidz.asteroids[index].center) < m_iAsteroidz.minDist)
         {
             if(arrayInside(m_Player.coordinates, m_iAsteroidz.asteroids[index].coordinates, m_iAsteroidz.asteroids[index].center))
-                {}//endGameSingle();
+                endGameSingle();
         }
         
         // Handles setting up lazers and checking if the lazer hit the asteroids
