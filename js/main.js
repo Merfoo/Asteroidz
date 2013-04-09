@@ -84,7 +84,7 @@ function initializeAsteroidz()
 {
     m_iAsteroidz = 
     {
-        asteroid: new Array(),
+        asteroids: new Array(),
         starting: 7,
         time: 0,
         maxTime: 2500,
@@ -96,7 +96,7 @@ function initializeAsteroidz()
     };
     
     for(var index = 0; index < m_iAsteroidz.starting; index++)
-        m_iAsteroidz.asteroid.push(makeAsteroid());
+        m_iAsteroidz.asteroids.push(makeAsteroid());
 }
 
 // Initialize Lazer object
@@ -104,7 +104,7 @@ function initializeLazers()
 {
     m_iLazers = 
     {
-        lazer: new Array(),
+        lazers: new Array(),
         setUpYet: false,
         time: 0,
         maxWait: 500
