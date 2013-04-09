@@ -12,7 +12,7 @@ var m_iFontSize;
 var m_iTextAlign;
 var m_CanvasMain;
 var m_CanvasBackground;
-var m_Music = { background: null, lazer: null, mute: false, lazerSrc: null };
+var m_Music = { background: null, lazer: null, mute: false, lazerSrc: null, backgroundSrc: null };
 var m_IntervalId = { game: null, startMenu: null};
 var m_bGameStatus = { started: false, paused: false, single: false, lost: false };
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65, m: 77 };
@@ -200,6 +200,7 @@ function resetGame()
 function setUpMusic()
 {
     var sDir = "music/";
+    m_Music.backgroundSrc = sDir + "background.mp3";
     
      // Sets up music
     if (!!(document.createElement('audio').canPlayType && document.createElement('audio').canPlayType('audio/mpeg;').replace(/no/, '')))
@@ -208,6 +209,7 @@ function setUpMusic()
     else
         m_Music.lazerSrc = sDir + "lazer.ogg";
     
+    m_Music.background = new Audio(m_Music.backgroundSrc);
     m_Music.lazer = new Audio(m_Music.lazerSrc);
 }
 
@@ -219,6 +221,30 @@ function playLazer()
         m_Music.lazer = new Audio(m_Music.lazerSrc);
         m_Music.lazer.play();
     }
+}
+
+function playBackgroundMusic()
+{
+    if(!m_Music.mute)
+    {
+        if(m_Music.background.ended)
+        {
+            m_Music.background.currentSrc = m_Music.backgroundSrc;
+            m_Music.background = new Audio(m_Music.backgroundSrc);
+        }
+        
+        m_Music.background.play();
+    }
+    
+    else
+    {
+        m_Music.background.pause();
+    }
+}
+
+function pauseBackgroundMusic()
+{
+    m_Music.background.pause();
 }
 
 function keyboardEvent(event)

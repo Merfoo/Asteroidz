@@ -13,6 +13,7 @@ function initializeSingle()
 function gameLoopSingle() 
 {
     clearGameScreen();
+    playBackgroundMusic();
     m_iTime.current = round(m_iTime.current += m_iSpeed.game / 1000, 2);
     m_iLazers.time += m_iSpeed.game;
     m_iLazers.setUpYet = false;
@@ -42,7 +43,7 @@ function gameLoopSingle()
         if(getDistance(m_Player.center, m_iAsteroidz.asteroids[index].center) < m_iAsteroidz.minDist)
         {
             if(arrayInside(m_Player.coordinates, m_iAsteroidz.asteroids[index].coordinates, m_iAsteroidz.asteroids[index].center))
-                endGameSingle();
+                {}//endGameSingle();
         }
         
         // Handles setting up lazers and checking if the lazer hit the asteroids
@@ -105,6 +106,7 @@ function gameLoopSingle()
 function pauseGameSingle()
 {
     showPausePic(true);
+    pauseBackgroundMusic();
     window.clearInterval(m_IntervalId.game);
 }
 
