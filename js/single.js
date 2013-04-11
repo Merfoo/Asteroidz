@@ -73,6 +73,7 @@ function gameLoopSingle()
                             m_iAsteroidz.asteroids.push(makeAsteroid(m_iAsteroidz.asteroids[index].center, getRandomAsteroidVelocity(), m_iAsteroidz.asteroids[index].size / 4, true));
                         
                         m_iAsteroidz.asteroids.splice(index, 1);
+                        m_iScores.one += floor(m_iAsteroidz.pointPer / 3);
                         continue;
                     }
                     
