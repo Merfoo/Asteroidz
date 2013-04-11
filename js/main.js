@@ -88,8 +88,6 @@ function initializeAsteroidz()
         starting: 7,
         time: 0,
         widthDivider: 200,
-        minTime: 1000,
-        timeDecrease: 100,
         maxTime: 2500,
         distFromMap: 250,
         minDist: 250,
@@ -652,7 +650,7 @@ function initializeStars()
     {
         star: new Array,
         initialized: false,
-        starting: 50
+        starting: 33
     };
     
     for(var index = 0; index < m_iStars.starting; index++)
