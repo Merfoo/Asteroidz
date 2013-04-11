@@ -29,7 +29,7 @@ function gameLoopSingle()
         {    
             if(m_iAsteroidz.asteroids.length <= m_iAsteroidz.count)
             {
-                m_iAsteroidz.asteroids[index] = makeAsteroid();
+                m_iAsteroidz.asteroids[index] = makeOutOfBoundsAsteroid();
                 continue;
             }
             
@@ -62,7 +62,7 @@ function gameLoopSingle()
         
             if(getDistance(m_iLazers.lazers[pos].center, m_iAsteroidz.asteroids[index].center) < m_iAsteroidz.minDist)
             {
-                if(arrayInside(m_iLazers.lazers[pos].coordinates, m_iAsteroidz.asteroids[index].coordinates, m_iLazers.lazers[pos].center, m_iAsteroidz.asteroids[index].center))
+                if(arrayInside(m_iLazers.lazers[pos].coordinates, m_iAsteroidz.asteroids[index].coordinates, m_iAsteroidz.asteroids[index].center))
                 {
                     m_iLazers.lazers.splice(pos, 1);
                     
@@ -70,9 +70,10 @@ function gameLoopSingle()
                     if(m_iAsteroidz.asteroids[index].size >= m_iAsteroidz.minSize)
                     {
                         for(var maker = 0; maker < getRandomNumber(1, 4); maker++)
-                            m_iAsteroidz.asteroids.push(makeAsteroid(m_iAsteroidz.asteroids[index].center, m_iAsteroidz.asteroids[index].size / 4));
+                            m_iAsteroidz.asteroids.push(makeAsteroid(m_iAsteroidz.asteroids[index].center, getRandomAsteroidVelocity(), m_iAsteroidz.asteroids[index].size / 4, true));
                         
-                        m_iAsteroidz.asteroids[index] = makeAsteroid(m_iAsteroidz.asteroids[index].center, m_iAsteroidz.asteroids[index].size / 4);
+                        m_iAsteroidz.asteroids.splice(index, 1);
+                        continue;
                     }
                     
                     // If ths asteroid is too small, remove it
@@ -95,7 +96,7 @@ function gameLoopSingle()
         m_iAsteroidz.count++;
         
         for(var index = 0; index < m_iAsteroidz.count - m_iAsteroidz.asteroids.length; index++)
-            m_iAsteroidz.asteroids.push(makeAsteroid());
+            m_iAsteroidz.asteroids.push(makeOutOfBoundsAsteroid());
     }
     
     writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium, "Time: " + m_iTime.current, m_iTime.color);
