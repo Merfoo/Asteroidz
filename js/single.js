@@ -102,15 +102,14 @@ function gameLoopSingle()
             m_iAsteroidz.maxTime -= m_iAsteroidz.timeDecrease;
     }
     
-    console.log(m_iAsteroidz.asteroids.length);
     writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium, "Time: " + m_iTime.current, m_iTime.color);
     writeMessage(m_iTextAlign.left + 333, m_iTextAlign.top, m_iFontSize.medium, "Score: " + m_iScores.one, m_iTime.color);
 }
 
 // Stops loop
-function pauseGameSingle()
+function pauseGameSingle(bShowPic)
 {
-    showPausePic(true);
+    showPausePic(bShowPic);
     pauseBackgroundMusic();
     window.clearInterval(m_IntervalId.game);
 }
@@ -124,15 +123,14 @@ function unPauseGameSingle()
 
 function endGameSingle()
 {
-    pauseGameSingle();
-    showPausePic(false);
+    pauseGameSingle(false);
     m_bGameStatus.lost = true;
     m_iScores.list.push(m_iScores.one = floor(m_iScores.one + m_iTime.current * m_iTime.multiplyer));
     m_iScores.list = order(m_iScores.list, true);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle, m_iFontSize.big, "You Lost!!!", m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 75, m_iFontSize.small, "Time Survived: " + m_iTime.current, m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 100, m_iFontSize.small, "Score: " + m_iScores.one + ",  Highest: " + m_iScores.list[0], m_iScores.color);
-    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 150, m_iFontSize.small, "To Play again press the esc", m_iScores.color);
+    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 150, m_iFontSize.small, "To Play again press Enter", m_iScores.color);
 }
 
 // Handle keyboard events for single player
@@ -172,7 +170,14 @@ function keyBoardEventSingle(event)
             else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
                 m_Player.left = false;
 
-            if (event.keyCode == m_iKeyId.a)    // A was pressed
+            else if(event.keyCode == m_iKeyId.enter)
+            {
+                pauseGameSingle(false);
+                resetGame();
+                initializeSingle();
+            }
+            
+            else if (event.keyCode == m_iKeyId.a)    // A was pressed
             {
                 if(m_iLazers.time >= m_iLazers.maxWait)
                 {
@@ -184,6 +189,6 @@ function keyBoardEventSingle(event)
         }
 
         if (event.keyCode == m_iKeyId.space && !m_bGameStatus.lost)    // Space bar was pressed
-            m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle();
+            m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle(true);
     }
 }

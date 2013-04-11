@@ -15,7 +15,7 @@ var m_CanvasBackground;
 var m_Music = { background: null, lazer: null, mute: false, lazerSrc: null, backgroundSrc: null };
 var m_IntervalId = { game: null, startMenu: null};
 var m_bGameStatus = { started: false, paused: false, single: false, lost: false };
-var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65, m: 77 };
+var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65, m: 77, enter: 13 };
 
 window.addEventListener('keydown', keyboardEvent, true);
 window.addEventListener('keyup', keyboardEvent, true);
@@ -92,7 +92,7 @@ function initializeAsteroidz()
         timeDecrease: 100,
         maxTime: 2500,
         distFromMap: 250,
-        minDist: 123,
+        minDist: 250,
         count: 7,
         minSize: 60,
         pointPer: 75
@@ -120,7 +120,6 @@ function showStartMenu(bVisible)
     if (bVisible)
     {
         resetGame();
-        clearGameScreen();
         document.getElementById("startMenu").style.zIndex = 2; 
         clearInterval(m_IntervalId.startMenu);
         m_IntervalId.startMenu = setInterval("drawStartMenu()", m_iSpeed.stars);
@@ -186,6 +185,8 @@ function writeMessage(x, y, font, message, color)
 // Resets the status's about the game
 function resetGame()
 {
+    pauseBackgroundMusic();
+    clearGameScreen();
     clearInterval(m_IntervalId.game);
     clearInterval(m_IntervalId.startMenu);
     initializeStars();
