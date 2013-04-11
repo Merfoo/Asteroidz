@@ -97,8 +97,12 @@ function gameLoopSingle()
         
         for(var index = 0; index < m_iAsteroidz.count - m_iAsteroidz.asteroids.length; index++)
             m_iAsteroidz.asteroids.push(makeOutOfBoundsAsteroid());
+        
+        if((m_iAsteroidz.maxTime - m_iAsteroidz.timeDecrease) > m_iAsteroidz.minTime)
+            m_iAsteroidz.maxTime -= m_iAsteroidz.timeDecrease;
     }
     
+    console.log(m_iAsteroidz.asteroids.length);
     writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium, "Time: " + m_iTime.current, m_iTime.color);
     writeMessage(m_iTextAlign.left + 333, m_iTextAlign.top, m_iFontSize.medium, "Score: " + m_iScores.one, m_iTime.color);
 }

@@ -88,6 +88,8 @@ function initializeAsteroidz()
         starting: 7,
         time: 0,
         widthDivider: 200,
+        minTime: 1000,
+        timeDecrease: 100,
         maxTime: 2500,
         distFromMap: 250,
         minDist: 123,
@@ -468,7 +470,7 @@ function makeOutOfBoundsAsteroid()
     var asteroid = 
     {
         velocity: { x: 0, y: 0},
-        center: { x: 0, y: 0},
+        center: { x: 0, y: 0}
     };
 
     if(position == 1 || position == 3) // Spawn left/right of the map
