@@ -43,7 +43,7 @@ function gameLoopSingle()
         if(getDistance(m_Player.center, m_iAsteroidz.asteroids[index].center) < m_iAsteroidz.minDist)
         {
             if(arrayInside(m_Player.coordinates, m_iAsteroidz.asteroids[index].coordinates, m_iAsteroidz.asteroids[index].center))
-                endGameSingle();
+                m_bGameStatus.lost = true;
         }
         
         // Handles setting up lazers and checking if the lazer hit the asteroids
@@ -138,15 +138,17 @@ function endGameSingle()
     {
         x: m_iTextAlign.center,
         y: m_iTextAlign.middle + 60,
-        width: m_iFontSize.big * 3,
-        height: m_iFontSize.big * 3 / 2
+        width: m_iFontSize.big * 3.33,
+        height: m_iFontSize.big * 1.5
     };
     
     pauseGameSingle(false);
     m_bGameStatus.lost = true;
     m_iScores.list.push(m_iScores.one = floor(m_iScores.one + m_iTime.current * m_iTime.multiplyer));
     m_iScores.list = order(m_iScores.list, true);
-    m_CanvasMain.clearRect(textRect.x, textRect.y, textRect.width, textRect.height);
+    //m_CanvasMain.clearRect(textRect.x, textRect.y, textRect.width, textRect.height);
+    m_CanvasMain.fillStyle = "red";
+    m_CanvasMain.fillRect(textRect.x, textRect.y, textRect.width, textRect.height);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle, m_iFontSize.big, "You Lost!!!", m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 75, m_iFontSize.small, "Time Survived: " + m_iTime.current, m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 100, m_iFontSize.small, "Score: " + m_iScores.one + ",  Highest: " + m_iScores.list[0], m_iScores.color);
