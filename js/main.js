@@ -264,7 +264,7 @@ function keyboardEvent(event)
         if(m_bGameStatus.single)
             keyBoardEventSingle(event);
     
-    if(event.keyCode == m_iKeyId.space || event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown)
+    if(event.keyCode == m_iKeyId.space || event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown || event.keyCode == m_iKeyId.arrowLeft || event.keyCode == m_iKeyId.arrowRight)
     {
         event.preventDefault();
         return false;
