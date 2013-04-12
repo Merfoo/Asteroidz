@@ -108,7 +108,7 @@ function initializeLazers()
         lazers: new Array(),
         setUpYet: false,
         time: 0,
-        maxWait: 500
+        maxWait: 333
     };
 }
 
