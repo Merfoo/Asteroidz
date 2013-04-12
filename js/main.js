@@ -175,7 +175,7 @@ function showPausePic(bVisible)
 // Writes message to corresponding tile, with specified colour
 function writeMessage(x, y, font, message, color)
 {
-    m_CanvasMain.font = font  + 'pt Calibri';
+    m_CanvasMain.font = font  + 'pt Georgia';
     m_CanvasMain.fillStyle = color;
     m_CanvasMain.fillText(message, x, y);
 }
