@@ -107,7 +107,6 @@ function initializeLazers()
     {
         lazers: new Array(),
         setUpYet: false,
-        time: 0,
         maxWait: 333
     };
 }
@@ -311,6 +310,8 @@ function resetPlayer(centerX, centerY)
         down: false,
         left: false,
         right: false,
+        shootingLazer: false,
+        lazerTime: 0,
         width: 2,
         degree: 0,
         wantedDegree: .125

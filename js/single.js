@@ -14,11 +14,11 @@ function gameLoopSingle()
 {
     clearGameScreen();
     playBackgroundMusic();
-    m_iTime.current = round(m_iTime.current += m_iSpeed.game / 1000, 2);
-    m_iLazers.time += m_iSpeed.game;
-    m_iLazers.setUpYet = false;
     showStars();
     m_Player = setUpShip(m_Player);
+    m_iTime.current = round(m_iTime.current += m_iSpeed.game / 1000, 2);
+    m_Player.lazerTime += m_iSpeed.game;
+    m_iLazers.setUpYet = false;
     
     // Handles setting up asteroids
     for(var index = 0; index < m_iAsteroidz.asteroids.length; index++)
@@ -100,6 +100,16 @@ function gameLoopSingle()
             m_iAsteroidz.asteroids.push(makeOutOfBoundsAsteroid());
     }
     
+    if(m_Player.shootingLazer)
+    {
+        if(m_Player.lazerTime >= m_iLazers.maxWait)
+        {
+            playLazer();
+            m_iLazers.lazers.push(makeLazer(m_Player));
+            m_Player.lazerTime = 0;
+        }
+    }
+    
     writeMessage(m_iTextAlign.left, m_iTextAlign.top, m_iFontSize.medium, "Time: " + m_iTime.current, m_iTime.color);
     writeMessage(m_iTextAlign.left + 333, m_iTextAlign.top, m_iFontSize.medium, "Score: " + m_iScores.one, m_iTime.color);
     
@@ -161,7 +171,10 @@ function keyBoardEventSingle(event)
 
             else if(event.keyCode == m_iKeyId.arrowLeft)    // Right arrow key was pressed
                 m_Player.left = true;
-         }   
+            
+            else if (event.keyCode == m_iKeyId.a)    // A was pressed
+                m_Player.shootingLazer = true;
+         } 
     }
     
     if(event.type == "keyup")
@@ -188,14 +201,7 @@ function keyBoardEventSingle(event)
             }
             
             else if (event.keyCode == m_iKeyId.a)    // A was pressed
-            {
-                if(m_iLazers.time >= m_iLazers.maxWait)
-                {
-                    playLazer();
-                    m_iLazers.lazers.push(makeLazer(m_Player));
-                    m_iLazers.time = 0;
-                }
-            }
+                m_Player.shootingLazer = false;
         }
 
         if (event.keyCode == m_iKeyId.space && !m_bGameStatus.lost)    // Space bar was pressed
