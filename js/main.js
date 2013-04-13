@@ -5,30 +5,33 @@ var m_Player;
 var m_iStars;
 var m_iAsteroidz;   
 var m_iLazers;  
-var m_iTime = { current: 0, color: "white", multiplyer: 10 };
-var m_iSpeed = { game: 33, stars: 50 };
-var m_iScores = { one: 0, color: "white", list: new Array()};
 var m_iFontSize;
 var m_iTextAlign;
-var m_CanvasMain;
-var m_CanvasBackground;
+var m_bGameStatus;
+var m_iScores;
+var m_iMouse = { wheelDelta: 0, divider: 16, min: 0, max: 0 };
+var m_Canvas = { main: null, glowingStars: null, stars: null };
 var m_Music = { background: null, lazer: null, mute: false, lazerSrc: null, backgroundSrc: null };
-var m_IntervalId = { game: null, startMenu: null};
-var m_bGameStatus = { started: false, paused: false, single: false, lost: false };
+var m_IntervalId = { game: null, glowingStars: null, scores: null};
+var m_iTime = { current: 0, color: "white", multiplyer: 10 };
+var m_iSpeed = { game: 33, glowingStars: 50, scores: 50 };
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, arrowRight: 39, arrowLeft: 37, esc: 27, space: 32, a: 65, m: 77, enter: 13 };
 
-window.addEventListener('keydown', keyboardEvent, true);
-window.addEventListener('keyup', keyboardEvent, true);
+window.addEventListener("keydown", keyboardEvent, true);
+window.addEventListener("keyup", keyboardEvent, true);
+window.addEventListener("mousewheel", mouseScrollEvent, true);
 document.addEventListener("DOMContentLoaded", initializeGame, false);
-document.documentElement.style.overflowX = 'hidden';	 // Horizontal scrollbar will be hidden
-document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar will be hidden
+document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
+document.documentElement.style.overflowY = "hidden";     // Vertical scrollbar will be hidden
 
 // Initialize canvas
 function initializeGame()
 {
     setUpMusic();
     initializeCanvas();
-    paintBackground();
+    initializeScores();
+    initializeStars();
+    paintStars();
     showStartMenu(true);
 }
 
@@ -42,8 +45,9 @@ function startGame(iGameVersion)
 // Sets the canvas as big as the broswer size
 function initializeCanvas()
 {
-    m_CanvasMain = document.getElementById("myCanvas").getContext("2d");
-    m_CanvasBackground = document.getElementById("background").getContext("2d");
+    m_Canvas.main = document.getElementById("myCanvas").getContext("2d");
+    m_Canvas.glowingStars = document.getElementById("glowingStars").getContext("2d");
+    m_Canvas.stars = document.getElementById("stars").getContext("2d");
     
     m_iMap = 
     {
@@ -70,16 +74,20 @@ function initializeCanvas()
         small: floor(m_iMap.height / 50)
     };
     
-    m_CanvasBackground.canvas.width = m_CanvasMain.canvas.width = m_iMap.width -= floor(m_iMap.width / 75); 
-    m_CanvasBackground.canvas.height = m_CanvasMain.canvas.height = m_iMap.height -= floor(m_iMap.height / 36);
+    m_Canvas.glowingStars.canvas.width = m_Canvas.stars.canvas.width = m_Canvas.main.canvas.width = m_iMap.width -= floor(m_iMap.width / 75); 
+    m_Canvas.glowingStars.canvas.height = m_Canvas.stars.canvas.height = m_Canvas.main.canvas.height = m_iMap.height -= floor(m_iMap.height / 36);
 }
 
-function clearGameScreen()
+function clearGameScreen(x, y, width, height)
 {
-    m_CanvasMain.clearRect(0, 0, m_iMap.width, m_iMap.height);
+    if(height == undefined)
+        m_Canvas.main.clearRect(0, 0, m_iMap.width, m_iMap.height);
+    
+    else
+        m_Canvas.main.clearRect(x, y, width, height);
 }
 
-// Initialize the astroidz array with 10
+// Initialize the astroidz array
 function initializeAsteroidz()
 {
     m_iAsteroidz = 
@@ -114,44 +122,44 @@ function initializeLazers()
 // Shows start menu, based on argument.
 function showStartMenu(bVisible)
 {
+    resetGame();
+    
     if (bVisible)
     {
-        resetGame();
-        document.getElementById("startMenu").style.zIndex = 2; 
-        clearInterval(m_IntervalId.startMenu);
-        m_IntervalId.startMenu = setInterval("drawStartMenu()", m_iSpeed.stars);
+        document.getElementById("startMenu").style.zIndex = 2;
+        document.getElementById("scoresMenu").style.zIndex = -2;
     }
 
     else
     {
-        clearInterval(m_IntervalId.startMenu);
         document.getElementById("startMenu").style.zIndex = -2;
+        document.getElementById("scoresMenu").style.zIndex = -2;
     }
 }
 
 function paintObject(array, width, color)
 {    
-    m_CanvasMain.beginPath();
-    m_CanvasMain.lineWidth = width;
-    m_CanvasMain.moveTo(array[0].x, array[0].y);
+    m_Canvas.main.beginPath();
+    m_Canvas.main.lineWidth = width;
+    m_Canvas.main.moveTo(array[0].x, array[0].y);
     
     for(var index = 1; index < array.length; index++)
-        m_CanvasMain.lineTo(array[index].x, array[index].y);
+        m_Canvas.main.lineTo(array[index].x, array[index].y);
     
-    m_CanvasMain.lineTo(array[0].x, array[0].y);
-    m_CanvasMain.strokeStyle = color;
-    m_CanvasMain.stroke();
-    m_CanvasMain.closePath();
+    m_Canvas.main.lineTo(array[0].x, array[0].y);
+    m_Canvas.main.strokeStyle = color;
+    m_Canvas.main.stroke();
+    m_Canvas.main.closePath();
 }
 
 // Paints a rectangle by pixels
 function paintTileBackground(startX, startY, width, height, color)
 {
-    m_CanvasBackground.fillStyle = color;
-    m_CanvasBackground.fillRect(startX, startY, width, height);
+    m_Canvas.stars.fillStyle = color;
+    m_Canvas.stars.fillRect(startX, startY, width, height);
 }
 
-function paintBackground()
+function paintStars()
 {
     paintTileBackground(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
 
@@ -171,12 +179,23 @@ function showPausePic(bVisible)
         document.getElementById("pause").style.zIndex = -2;
 }
 
+function showEndGame(bVisible)
+{
+    m_bGameStatus.lost = bVisible;
+    
+    if (bVisible)
+        document.getElementById("endGame").style.zIndex = 2;
+
+    else
+        document.getElementById("endGame").style.zIndex = -2;
+}
+
 // Writes message to corresponding tile, with specified colour
 function writeMessage(x, y, font, message, color)
 {
-    m_CanvasMain.font = font  + 'pt Georgia';
-    m_CanvasMain.fillStyle = color;
-    m_CanvasMain.fillText(message, x, y);
+    m_Canvas.main.font = font  + 'pt Georgia';
+    m_Canvas.main.fillStyle = color;
+    m_Canvas.main.fillText(message, x, y);
 }
 
 // Resets the status's about the game
@@ -184,18 +203,64 @@ function resetGame()
 {
     pauseBackgroundMusic();
     clearGameScreen();
-    clearInterval(m_IntervalId.game);
-    clearInterval(m_IntervalId.startMenu);
-    initializeStars();
+    clearAllIntervals();
     initializeAsteroidz();
     initializeLazers();
-    showPausePic(false);
-    m_bGameStatus.started = false;
-    m_bGameStatus.isPaused = false;
-    m_bGameStatus.single = false;
-    m_bGameStatus.lost = false;
+    initializeGameStatus();
     m_iScores.one = 0;
     m_iTime.current = 0;
+    showPausePic(false);
+    showEndGame(false);
+}
+
+// Clears all intervals()
+function clearAllIntervals()
+{
+    clearInterval(m_IntervalId.game);
+    clearInterval(m_IntervalId.scores);
+}
+
+function initializeGameStatus()
+{
+    m_bGameStatus = 
+    {
+        started: false,
+        isPaused: false,
+        single: false,
+        lost: false,
+        showingScores: false
+    };
+}
+
+function initializeScores()
+{
+    m_iScores = 
+    {
+        one: 0,
+        list: new Array(),
+        color: "white",
+        distFromEach: floor(m_iMap.height / 10),
+        name: "",
+        count: 1,
+        
+        orderList: function (bHighFirst)
+        {
+            var temp;
+    
+            for(var loop = 0; loop < this.list.length; loop++)
+            {
+                for(var index = 0; index < this.list.length - 1; index++)
+                {
+                    if((bHighFirst && this.list[index].score < this.list[index + 1].score) || (!bHighFirst && this.list[index].score > this.list[index + 1].score))
+                    {
+                        temp = this.list[index];
+                        this.list[index] = this.list[index + 1];
+                        this.list[index + 1] = temp;
+                    }
+                }
+            }
+        }
+    };
 }
 
 function setUpMusic()
@@ -251,23 +316,45 @@ function pauseBackgroundMusic()
 function keyboardEvent(event)
 {
     if(event.type == "keyup")
-    {
-        if(event.keyCode == m_iKeyId.esc)
-            showStartMenu(true);
-        
         if(event.keyCode == m_iKeyId.m)
             m_Music.mute = !m_Music.mute;
-    }
     
     if (m_bGameStatus.started)
         if(m_bGameStatus.single)
             keyBoardEventSingle(event);
+    
+    if(m_bGameStatus.showingScores)
+        showStartMenu(true);
     
     if(event.keyCode == m_iKeyId.space || event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown || event.keyCode == m_iKeyId.arrowLeft || event.keyCode == m_iKeyId.arrowRight)
     {
         event.preventDefault();
         return false;
     }
+}
+
+function mouseScrollEvent(event)
+{
+    var addValue = floor(event.wheelDelta / m_iMouse.divider);
+    
+    if(m_bGameStatus.showingScores)
+    {
+        if((m_iScores.list[m_iScores.list.length - 1].y > m_iMap.height && addValue < 0) || (m_iMouse.wheelDelta < m_iMouse.min && addValue > 0))
+            m_iMouse.wheelDelta += addValue;
+    }
+}
+
+function takeInput()
+{
+    var text = document.usernameForm.usernameTextBox.value;
+    
+    if(text == "Merfoo " + m_iScores.count)
+    {
+        text = "Merfoo " + (m_iScores.count++);
+        document.usernameForm.usernameTextBox.value = "Merfoo " + m_iScores.count;
+    }
+    
+    return text;
 }
 
 function resetPlayer(centerX, centerY)
@@ -656,6 +743,8 @@ function initializeStars()
     
     for(var index = 0; index < m_iStars.starting; index++)
         m_iStars.star.push(makeStar());
+    
+    paintGlowingStars();
 }
 
 function makeStar()
@@ -672,21 +761,17 @@ function makeStar()
     return star;
 }
 
-function drawStartMenu()
+function paintGlowingStars()
 {
-    clearGameScreen();
-    showStars();
-}
-
-function showStars()
-{
+    m_Canvas.glowingStars.clearRect(0, 0, m_iMap.width, m_iMap.height);
+    
     for(var index = 0; index  < m_iStars.star.length; index++)
     {
-        var gradient = m_CanvasMain.createRadialGradient(m_iStars.star[index].x, m_iStars.star[index].y, 1, m_iStars.star[index].x, m_iStars.star[index].y, m_iStars.star[index].r);
+        var gradient = m_Canvas.glowingStars.createRadialGradient(m_iStars.star[index].x, m_iStars.star[index].y, 1, m_iStars.star[index].x, m_iStars.star[index].y, m_iStars.star[index].r);
         gradient.addColorStop(0, getRandomColor(1, 255));
         gradient.addColorStop(m_iStars.star[index].currentStop, m_iMap.backgroundColor);
-        m_CanvasMain.fillStyle = gradient;
-        m_CanvasMain.fillRect(m_iStars.star[index].x - m_iStars.star[index].r, m_iStars.star[index].y - m_iStars.star[index].r, m_iStars.star[index].r * 2, m_iStars.star[index].r * 2);
+        m_Canvas.glowingStars.fillStyle = gradient;
+        m_Canvas.glowingStars.fillRect(m_iStars.star[index].x - m_iStars.star[index].r, m_iStars.star[index].y - m_iStars.star[index].r, m_iStars.star[index].r * 2, m_iStars.star[index].r * 2);
 
         if((m_iStars.star[index].currentStop += m_iStars.star[index].stopIncrease) >= 1)
         {
@@ -697,6 +782,8 @@ function showStars()
         if(m_iStars.star[index].currentStop <= 0)
             m_iStars.star[index] = makeStar();   
     }
+    
+    m_IntervalId.glowingStars = setTimeout("paintGlowingStars();", m_iSpeed.glowingStars);
 }
 
 function getRandomAsteroidVelocity()
@@ -710,4 +797,31 @@ function getRandomAsteroidVelocity()
     };
     
     return velocity;
+}
+
+function showScores()
+{
+    showStartMenu(false);
+    
+    m_IntervalId.scores = setInterval("paintScores()", m_iSpeed.scores);
+}
+
+function paintScores()
+{
+    clearGameScreen();
+    m_bGameStatus.showingScores = true;
+    document.getElementById("scoresMenu").style.zIndex = 2;
+    
+    if(m_iScores.list.length > 0)
+    {    
+        for(var index = 0; index < m_iScores.list.length; index++)
+        {
+            m_iScores.list[index].y = (m_iScores.distFromEach * index) + m_iScores.distFromEach + m_iMouse.wheelDelta;
+            writeMessage(m_iTextAlign.left, m_iScores.list[index].y, m_iFontSize.medium, m_iScores.list[index].name, m_iScores.color);
+            writeMessage(m_iTextAlign.center, m_iScores.list[index].y, m_iFontSize.medium, m_iScores.list[index].score, m_iScores.color);
+        }
+    }
+    
+    else
+        writeMessage(floor(m_iTextAlign.center / 2) , m_iTextAlign.middle, m_iFontSize.medium, "None so far", m_iScores.color);
 }

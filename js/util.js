@@ -153,3 +153,16 @@ function order(array, highFirst)
     
     return array;
 }
+
+function limit(value, lower, upper)
+{
+    upper = upper > lower ? upper : lower;
+    
+    if(value > upper)
+        return upper;
+    
+    else if(value < lower)
+        return lower;
+    
+    return value;
+}

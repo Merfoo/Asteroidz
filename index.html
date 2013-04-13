@@ -12,11 +12,21 @@
 <body>
     <div id="screens">
         <canvas id="myCanvas" ></canvas>
-        <canvas id="background"></canvas>
+        <canvas id="glowingStars"></canvas>
+        <canvas id="stars"></canvas>
     </div>
     <div id="startMenu">
         <img id="title" src="pics/title.png" />
         <img id="singlePlayer" src ="pics/1player.png" onclick="startGame(0);" />
+        <img id="score" src="pics/score.png" onclick="showScores();" />
+    </div>
+    <div id="scoresMenu">
+        <img id="scoreTitle" src="pics/score.png" />
+    </div>
+    <div id="endGame">
+        <form id="usernameForm" name="usernameForm">
+            <input id="usernameTextBox" name="usernameTextBox" type="text" value="Merfoo 1" />
+        </form>
     </div>
     <img id="pause" src="pics/pause.png"/>
 </body>

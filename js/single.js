@@ -6,7 +6,7 @@ function initializeSingle()
     m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
     m_bGameStatus.started = true;
     m_bGameStatus.single = true;
-    m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
+    m_IntervalId.game = window.setInterval("gameLoopSingle()", m_iSpeed.game);
 }
 
 // Runs all the functions required for the game to work.
@@ -14,7 +14,6 @@ function gameLoopSingle()
 {
     clearGameScreen();
     playBackgroundMusic();
-    showStars();
     m_Player = setUpShip(m_Player);
     m_iTime.current = round(m_iTime.current += m_iSpeed.game / 1000, 2);
     m_Player.lazerTime += m_iSpeed.game;
@@ -133,7 +132,10 @@ function unPauseGameSingle()
 }
 
 function endGameSingle()
-{
+{ 
+    var current = getScore();
+    var highest = current;
+    
     var textRect = 
     {
         x: m_iTextAlign.center,
@@ -143,14 +145,49 @@ function endGameSingle()
     };
     
     pauseGameSingle(false);
-    m_bGameStatus.lost = true;
-    m_iScores.list.push(m_iScores.one = floor(m_iScores.one + m_iTime.current * m_iTime.multiplyer));
-    m_iScores.list = order(m_iScores.list, true);
-    m_CanvasMain.clearRect(textRect.x, textRect.y, textRect.width, textRect.height);
+    showEndGame(true);
+    clearGameScreen(textRect.x, textRect.y, textRect.width, textRect.height);
+    
+    if(m_iScores.list.length > 0)
+        highest = current > m_iScores.list[0].score ? current : m_iScores.list[0].score;
+     
+    // Writes messages
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle, m_iFontSize.big, "You Lost!!!", m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 75, m_iFontSize.small, "Time Survived: " + m_iTime.current, m_iScores.color);
-    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 100, m_iFontSize.small, "Score: " + m_iScores.one + ",  Highest: " + m_iScores.list[0], m_iScores.color);
+    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 100, m_iFontSize.small, "Score: " + current + ",  Highest: " + highest, m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 150, m_iFontSize.small, "To Play again press Enter", m_iScores.color);
+}
+
+function getScore()
+{
+    return floor(m_iScores.one + m_iTime.current * m_iTime.multiplyer);
+}
+
+function submitScoreSingle()
+{
+    var newScore =
+    {
+        score: getScore(),
+        y: 0,
+        name: takeInput()
+    };
+    
+    m_iScores.list.push(newScore);
+    m_iScores.orderList(true);
+}
+
+function playSingleAgain()
+{
+    submitScoreSingle();
+    pauseGameSingle(false);
+    resetGame();
+    initializeSingle();
+}
+
+function showStartSingle()
+{
+    submitScoreSingle();
+    showStartMenu(true);
 }
 
 // Handle keyboard events for single player
@@ -194,14 +231,13 @@ function keyBoardEventSingle(event)
                 m_Player.left = false;
 
             else if(event.keyCode == m_iKeyId.enter)
-            {
-                pauseGameSingle(false);
-                resetGame();
-                initializeSingle();
-            }
+                playSingleAgain();
             
-            else if (event.keyCode == m_iKeyId.a)    // A was pressed
+            else if(event.keyCode == m_iKeyId.a)    // A was pressed
                 m_Player.shootingLazer = false;
+            
+            else if(event.keyCode == m_iKeyId.esc)
+                showStartSingle();
         }
 
         if (event.keyCode == m_iKeyId.space && !m_bGameStatus.lost)    // Space bar was pressed

@@ -7,7 +7,7 @@
     border:3px solid gray;
 }
 
-#background 
+#glowingStars
 {
     z-index: 0; 
     position: absolute;
@@ -16,9 +16,18 @@
     border:3px solid gray;
 }
 
+#stars 
+{
+    z-index: -1; 
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    border:3px solid gray;
+}
+
 #pause 
 {
-    z-index:-1; 
+    z-index:-2; 
     height: 60%; 
     width: 60%; 
     position:absolute; 
@@ -28,7 +37,7 @@
 
 #startMenu 
 {
-    z-index: -1;
+    z-index: -2;
     height: 100%; 
     width: 100%;
     position: absolute; 
@@ -52,4 +61,51 @@
     position: absolute; 
     top: 71%; 
     left: 35%;
+}
+
+#score
+{
+    height: 5%; 
+    width: 10%;
+    position: absolute; 
+    top: 5%; 
+    left: 88%;
+}
+
+#scoresMenu
+{
+    z-index: -2;
+    height: 100%; 
+    width: 100%;
+    position: absolute; 
+    top: 0%; 
+    left: 0%;
+}
+
+#scoreTitle
+{
+    height: 15%; 
+    width: 30%;
+    position: absolute; 
+    top: 25%; 
+    left: 55%;
+}
+
+#endGame
+{
+    z-index: -2;
+    height: 100%; 
+    width: 100%;
+    position: absolute; 
+    top: 0%; 
+    left: 0%;
+}
+
+#usernameForm
+{
+    height: 15%; 
+    width: 30%;
+    position: absolute; 
+    top: 50%; 
+    left: 55%;
 }
