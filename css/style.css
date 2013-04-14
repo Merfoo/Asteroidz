@@ -109,3 +109,12 @@
     top: 50%; 
     left: 55%;
 }
+
+#usernameTextBox
+{
+    height: 15%; 
+    width: 30%;
+    position: absolute; 
+    top: 10%; 
+    left: 0%;
+}

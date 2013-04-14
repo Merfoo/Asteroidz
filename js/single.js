@@ -145,29 +145,31 @@ function showEndGameSingle(bVisible)
 
 function endGameSingle()
 { 
+    setFocus("usernameTextBox", true);
     var current = getScoreSingle();
     var highest = current;
     
-    var textRect = 
-    {
-        x: m_iTextAlign.center,
-        y: m_iTextAlign.middle + 60,
-        width: m_iFontSize.big * 3.33,
-        height: m_iFontSize.big * 1.5
-    };
+//    var textRect = 
+//    {
+//        x: m_iTextAlign.center,
+//        y: m_iTextAlign.middle + 60,
+//        width: m_iFontSize.big * 3.33,
+//        height: m_iFontSize.big * 1.5
+//    };
     
     pauseGameSingle(false);
     showEndGameSingle(true);
-    clearGameScreen(textRect.x, textRect.y, textRect.width, textRect.height);
+    //clearGameScreen(textRect.x, textRect.y, textRect.width, textRect.height);
     
     if(m_iScores.list.length > 0)
         highest = current > m_iScores.list[0].score ? current : m_iScores.list[0].score;
      
     // Writes messages
+    writeMessage(m_iTextAlign.center + floor(m_iTextAlign.center / 3 * 2), m_iTextAlign.middle + floor(m_iTextAlign.middle / 5 * 2), m_iFontSize.small, "Username", m_iScores.color);
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle, m_iFontSize.big, "You Lost!!!", m_iScores.color);
-    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 75, m_iFontSize.small, "Time Survived: " + m_iTime.current, m_iScores.color);
-    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 100, m_iFontSize.small, "Score: " + current + ",  Highest: " + highest, m_iScores.color);
-    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 150, m_iFontSize.small, "To Play again press Enter", m_iScores.color);
+    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + floor(m_iTextAlign.middle / 3 * 1), m_iFontSize.small, "Time Survived: " + m_iTime.current, m_iScores.color);
+    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + floor(m_iTextAlign.middle / 4 * 2), m_iFontSize.small, "Score: " + current + ",  Highest: " + highest, m_iScores.color);
+    writeMessage(m_iTextAlign.center, m_iTextAlign.middle + floor(m_iTextAlign.middle / 4 * 3), m_iFontSize.small, "To Play again press Enter", m_iScores.color);
 }
 
 function getScoreSingle()
@@ -177,15 +179,7 @@ function getScoreSingle()
 
 function takeInputSingle()
 {
-    var text = document.usernameForm.usernameTextBox.value;
-    
-    if(text == "Merfoo " + m_iScores.count)
-    {
-        text = "Merfoo " + (m_iScores.count++);
-        document.usernameForm.usernameTextBox.value = "Merfoo " + m_iScores.count;
-    }
-    
-    return text;
+    return document.usernameForm.usernameTextBox.value;
 }
 
 function submitScoreSingle()
