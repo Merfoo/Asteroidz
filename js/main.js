@@ -179,17 +179,6 @@ function showPausePic(bVisible)
         document.getElementById("pause").style.zIndex = -2;
 }
 
-function showEndGame(bVisible)
-{
-    m_bGameStatus.lost = bVisible;
-    
-    if (bVisible)
-        document.getElementById("endGame").style.zIndex = 2;
-
-    else
-        document.getElementById("endGame").style.zIndex = -2;
-}
-
 // Writes message to corresponding tile, with specified colour
 function writeMessage(x, y, font, message, color)
 {
@@ -210,7 +199,7 @@ function resetGame()
     m_iScores.one = 0;
     m_iTime.current = 0;
     showPausePic(false);
-    showEndGame(false);
+    showEndGameSingle(false);
 }
 
 // Clears all intervals()
@@ -295,7 +284,7 @@ function playBackgroundMusic()
     {
         if(m_Music.background.ended)
         {
-            m_Music.background.currentSrc = m_Music.backgroundSrc;
+            m_Music.background = null;
             m_Music.background = new Audio(m_Music.backgroundSrc);
         }
         
@@ -303,9 +292,7 @@ function playBackgroundMusic()
     }
     
     else
-    {
         m_Music.background.pause();
-    }
 }
 
 function pauseBackgroundMusic()
@@ -342,19 +329,6 @@ function mouseScrollEvent(event)
         if((m_iScores.list[m_iScores.list.length - 1].y > m_iMap.height && addValue < 0) || (m_iMouse.wheelDelta < m_iMouse.min && addValue > 0))
             m_iMouse.wheelDelta += addValue;
     }
-}
-
-function takeInput()
-{
-    var text = document.usernameForm.usernameTextBox.value;
-    
-    if(text == "Merfoo " + m_iScores.count)
-    {
-        text = "Merfoo " + (m_iScores.count++);
-        document.usernameForm.usernameTextBox.value = "Merfoo " + m_iScores.count;
-    }
-    
-    return text;
 }
 
 function resetPlayer(centerX, centerY)
@@ -802,22 +776,22 @@ function getRandomAsteroidVelocity()
 function showScores()
 {
     showStartMenu(false);
-    
+    document.getElementById("scoresMenu").style.zIndex = 2;
+    m_bGameStatus.showingScores = true;
     m_IntervalId.scores = setInterval("paintScores()", m_iSpeed.scores);
 }
 
 function paintScores()
 {
     clearGameScreen();
-    m_bGameStatus.showingScores = true;
-    document.getElementById("scoresMenu").style.zIndex = 2;
     
     if(m_iScores.list.length > 0)
     {    
         for(var index = 0; index < m_iScores.list.length; index++)
         {
             m_iScores.list[index].y = (m_iScores.distFromEach * index) + m_iScores.distFromEach + m_iMouse.wheelDelta;
-            writeMessage(m_iTextAlign.left, m_iScores.list[index].y, m_iFontSize.medium, m_iScores.list[index].name, m_iScores.color);
+            writeMessage(m_iTextAlign.left, m_iScores.list[index].y, m_iFontSize.medium, index + 1 + ".", m_iScores.color);
+            writeMessage(m_iTextAlign.left + floor(m_iTextAlign.center / 10), m_iScores.list[index].y, m_iFontSize.medium, m_iScores.list[index].name, m_iScores.color);
             writeMessage(m_iTextAlign.center, m_iScores.list[index].y, m_iFontSize.medium, m_iScores.list[index].score, m_iScores.color);
         }
     }

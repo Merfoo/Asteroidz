@@ -131,9 +131,21 @@ function unPauseGameSingle()
     m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
 }
 
+// Shows endgame 
+function showEndGameSingle(bVisible)
+{
+    m_bGameStatus.lost = bVisible;
+    
+    if (bVisible)
+        document.getElementById("endGameSingle").style.zIndex = 2;
+
+    else
+        document.getElementById("endGameSingle").style.zIndex = -2;
+}
+
 function endGameSingle()
 { 
-    var current = getScore();
+    var current = getScoreSingle();
     var highest = current;
     
     var textRect = 
@@ -145,7 +157,7 @@ function endGameSingle()
     };
     
     pauseGameSingle(false);
-    showEndGame(true);
+    showEndGameSingle(true);
     clearGameScreen(textRect.x, textRect.y, textRect.width, textRect.height);
     
     if(m_iScores.list.length > 0)
@@ -158,18 +170,31 @@ function endGameSingle()
     writeMessage(m_iTextAlign.center, m_iTextAlign.middle + 150, m_iFontSize.small, "To Play again press Enter", m_iScores.color);
 }
 
-function getScore()
+function getScoreSingle()
 {
     return floor(m_iScores.one + m_iTime.current * m_iTime.multiplyer);
+}
+
+function takeInputSingle()
+{
+    var text = document.usernameForm.usernameTextBox.value;
+    
+    if(text == "Merfoo " + m_iScores.count)
+    {
+        text = "Merfoo " + (m_iScores.count++);
+        document.usernameForm.usernameTextBox.value = "Merfoo " + m_iScores.count;
+    }
+    
+    return text;
 }
 
 function submitScoreSingle()
 {
     var newScore =
     {
-        score: getScore(),
+        score: getScoreSingle(),
         y: 0,
-        name: takeInput()
+        name: takeInputSingle()
     };
     
     m_iScores.list.push(newScore);
@@ -178,7 +203,9 @@ function submitScoreSingle()
 
 function playSingleAgain()
 {
-    submitScoreSingle();
+    if(m_bGameStatus.lost)
+        submitScoreSingle();
+    
     pauseGameSingle(false);
     resetGame();
     initializeSingle();
@@ -186,7 +213,6 @@ function playSingleAgain()
 
 function showStartSingle()
 {
-    submitScoreSingle();
     showStartMenu(true);
 }
 
