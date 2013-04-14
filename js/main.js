@@ -784,7 +784,7 @@ function showScores()
 function paintScores()
 {
     clearGameScreen();
-    writeMessage(m_iTextAlign.right - floor(m_iTextAlign.right / 20), m_iTextAlign.top, m_iFontSize.small, "Press any key to go back", m_iScores.color);
+    writeMessage(m_iTextAlign.right - floor(m_iTextAlign.right / 10), m_iTextAlign.top, m_iFontSize.small, "Press any key to go back", m_iScores.color);
     
     if(m_iScores.list.length > 0)
     {    
