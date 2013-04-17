@@ -27,12 +27,21 @@ document.documentElement.style.overflowY = "hidden";     // Vertical scrollbar w
 // Initialize canvas
 function initializeGame()
 {
-    setUpMusic();
+    initializeMusic();
     initializeCanvas();
     initializeScores();
     initializeStars();
     paintStars();
     showStartMenu(true);
+    
+    $("input[type='text']").keypress
+    (
+        function(event)
+        {
+            if(this.value.length > m_iScores.maxNameLength)
+                event.preventDefault();
+        }
+    );
 }
 
 // Starts game
@@ -231,6 +240,7 @@ function initializeScores()
         distFromEach: floor(m_iMap.height / 10),
         name: "",
         count: 1,
+        maxNameLength: 20,  // Maximum amount of characters in the username
         
         orderList: function (bHighFirst)
         {
@@ -252,7 +262,7 @@ function initializeScores()
     };
 }
 
-function setUpMusic()
+function initializeMusic()
 {
     var sDir = "music/";
     m_Music.backgroundSrc = sDir + "background.mp3";

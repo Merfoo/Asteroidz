@@ -145,21 +145,12 @@ function showEndGameSingle(bVisible)
 
 function endGameSingle()
 { 
-    setFocus("usernameTextBox", true);
-    var current = getScoreSingle();
-    var highest = current;
-    
-//    var textRect = 
-//    {
-//        x: m_iTextAlign.center,
-//        y: m_iTextAlign.middle + 60,
-//        width: m_iFontSize.big * 3.33,
-//        height: m_iFontSize.big * 1.5
-//    };
-    
     pauseGameSingle(false);
     showEndGameSingle(true);
-    //clearGameScreen(textRect.x, textRect.y, textRect.width, textRect.height);
+    m_Player.shootingLazer = false;
+    setFocus("usernameTextBox", true);
+    var current = getScoreSingle();
+    var highest = current;    
     
     if(m_iScores.list.length > 0)
         highest = current > m_iScores.list[0].score ? current : m_iScores.list[0].score;
@@ -207,6 +198,9 @@ function playSingleAgain()
 
 function showStartSingle()
 {
+    if(m_bGameStatus.lost)
+        submitScoreSingle();
+    
     showStartMenu(true);
 }
 
