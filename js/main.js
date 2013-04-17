@@ -131,6 +131,7 @@ function initializeLazers()
 // Shows start menu, based on argument.
 function showStartMenu(bVisible)
 {
+    setFocus("usernameTextBox", false);
     resetGame();
     
     if (bVisible)
