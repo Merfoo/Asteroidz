@@ -290,8 +290,8 @@ function playLazer()
 {
     if (!m_Music.mute) 
     {
-        m_Music.lazer.play();
         m_Music.lazer.src = m_Music.lazer.src;
+        m_Music.lazer.play();
     }
 }
 
