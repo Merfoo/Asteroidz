@@ -3,7 +3,7 @@
 function initializeSingle()
 {
     showStartMenu(false);
-    m_Player = resetPlayer(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
+    m_Player = resetShip(floor(m_iMap.width / 2), floor(m_iMap.height / 2));
     m_bGameStatus.started = true;
     m_bGameStatus.single = true;
     m_IntervalId.game = window.setInterval("gameLoopSingle()", m_iSpeed.game);
@@ -26,15 +26,13 @@ function gameLoopSingle()
         
         if(!pointWithinMap(m_iAsteroidz.asteroids[index].center.x, m_iAsteroidz.asteroids[index].center.y, m_iAsteroidz.distFromMap, m_iAsteroidz.distFromMap))
         {    
-            if(m_iAsteroidz.asteroids.length <= m_iAsteroidz.count)
-            {
+            if(m_iAsteroidz.asteroids.length < m_iAsteroidz.count)
                 m_iAsteroidz.asteroids[index] = makeOutOfBoundsAsteroid();
-                continue;
-            }
             
             else
             {
                 m_iAsteroidz.asteroids.splice(index, 1);
+                index--;
                 continue;
             }
         }
@@ -56,24 +54,29 @@ function gameLoopSingle()
             if(!pointWithinMap(m_iLazers.lazers[pos].center.x, m_iLazers.lazers[pos].center.y, m_iAsteroidz.distFromMap, m_iAsteroidz.distFromMap))
             {
                 m_iLazers.lazers.splice(pos, 1);
+                pos--;
                 continue;
             }
-        
+            
+            //console.log(m_iAsteroidz.asteroids[index].center);
+            index;
+
             if(getDistance(m_iLazers.lazers[pos].center, m_iAsteroidz.asteroids[index].center) < m_iAsteroidz.minDist)
             {
                 if(arrayInside(m_iLazers.lazers[pos].coordinates, m_iAsteroidz.asteroids[index].coordinates, m_iAsteroidz.asteroids[index].center))
                 {
                     m_iLazers.lazers.splice(pos, 1);
-                    
+                    pos--;
+
                     // If the asteroid is big enough, spawn more
                     if(m_iAsteroidz.asteroids[index].size >= m_iAsteroidz.minSize)
-                    {
+                     {
                         for(var maker = 0; maker < getRandomNumber(1, 4); maker++)
                             m_iAsteroidz.asteroids.push(makeAsteroid(m_iAsteroidz.asteroids[index].center, getRandomAsteroidVelocity(), m_iAsteroidz.asteroids[index].size / 4, true));
                         
                         m_iAsteroidz.asteroids.splice(index, 1);
                         m_iScores.one += floor(m_iAsteroidz.pointPer / 3);
-                        continue;
+                        index--;
                     }
                     
                     // If ths asteroid is too small, remove it
@@ -81,8 +84,11 @@ function gameLoopSingle()
                     {
                         m_iScores.one += m_iAsteroidz.pointPer;
                         m_iAsteroidz.asteroids.splice(index, 1);
-                        continue;
+                        index--;
                     }
+
+                    if (index < 0)
+                        index = 0;
                 }
             }
         }
@@ -101,7 +107,7 @@ function gameLoopSingle()
     
     if(m_Player.shootingLazer)
     {
-        if(m_Player.lazerTime >= m_iLazers.maxWait)
+        if (m_Player.lazerTime >= m_iLazers.minWait)
         {
             playLazer();
             m_iLazers.lazers.push(makeLazer(m_Player));
