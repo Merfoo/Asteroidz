@@ -605,7 +605,7 @@ function makeAsteroid(center, velocity, sideLength, broken)
     var maxDegree = 100;    // Maximum rotation angle the asteroid
 
     var asteroid =
-    {
+    {        
         coordinates: new Array(),
         velocity: { x: velocity.x, y: velocity.y },
         center: { x: 0, y: 0 },
@@ -767,10 +767,11 @@ function makeStar()
 // Paints the stars in the background
 function paintGlowingStars() 
 {
+    m_Canvas.glowingStars.clearRect(0, 0, m_iMap.width, m_iMap.height)
+    
     for (var index = 0; index < m_iStars.star.length; index++) 
     {
         m_Canvas.glowingStars.fillStyle = getRandomColor(1, 255);
-        m_Canvas.glowingStars.clearRect(m_iStars.star[index].x - m_iStars.star[index].currentR, m_iStars.star[index].y - m_iStars.star[index].currentR, m_iStars.star[index].currentR * 2, m_iStars.star[index].currentR * 2);
         m_Canvas.glowingStars.beginPath();
         m_Canvas.glowingStars.arc(m_iStars.star[index].x, m_iStars.star[index].y, m_iStars.star[index].currentR, 0, 2 * Math.PI, false);
         m_Canvas.glowingStars.fill();

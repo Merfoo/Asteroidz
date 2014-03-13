@@ -58,9 +58,6 @@ function gameLoopSingle()
                 continue;
             }
             
-            //console.log(m_iAsteroidz.asteroids[index].center);
-            index;
-
             if(getDistance(m_iLazers.lazers[pos].center, m_iAsteroidz.asteroids[index].center) < m_iAsteroidz.minDist)
             {
                 if(arrayInside(m_iLazers.lazers[pos].coordinates, m_iAsteroidz.asteroids[index].coordinates, m_iAsteroidz.asteroids[index].center))
